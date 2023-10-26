@@ -1,16 +1,16 @@
 package entities
 
 import (
+	"database/sql"
 	"gorm.io/gorm"
-	"time"
 )
 
 type Link struct {
 	gorm.Model
-	ShortCode   string `gorm:"index:idx_link_short_code,unique"`
+	Key         string `gorm:"index:idx_link_key,unique"`
 	RealLink    string
 	UniqueVisit int64
 	TotalVisit  int64
-	ExpireAt    time.Time
+	ExpireAt    sql.NullTime
 	Immediate   bool
 }
