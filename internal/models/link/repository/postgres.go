@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const tableName = "links"
+const tableName = "link"
 
 type postgresRepository struct {
 	*db.DB
@@ -48,7 +48,7 @@ func migration(_ context.Context, dbInstance *db.DB) error {
 			newMigrations = append(newMigrations, &db.Migration{
 				TableName:   tableName,
 				Tag:         "v1.0.0",
-				Description: "create links table",
+				Description: "create link table",
 			})
 		}
 		err = tx.Model(new(db.Migration)).CreateInBatches(&newMigrations, 100).Error

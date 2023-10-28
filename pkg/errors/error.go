@@ -1,7 +1,10 @@
 package errors
 
 import (
+	"context"
+	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"golang.org/x/text/language"
 )
 
@@ -13,6 +16,12 @@ type Error struct {
 	originalError error
 	translates    map[language.Tag]string
 	details       map[string]string
+}
+
+type jsonError struct {
+	RefID   uuid.UUID
+	Message string
+	Code    int
 }
 
 func (e *Error) Error() string {
@@ -50,4 +59,28 @@ func (e *Error) Details() map[string]string {
 		e.details = make(map[string]string)
 	}
 	return e.details
+}
+
+func (e *Error) Json(ctx context.Context) string {
+	lang := ctx.Value("language")
+	jsonErr := new(jsonError)
+	if lang != nil {
+		langTag, err := language.Parse(lang.(string))
+		if err == nil {
+			jsonErr.Message = e.translates[langTag]
+		}
+	}
+	if jsonErr.Message == "" {
+		jsonErr.Message = e.Message
+	}
+	jsonErr.Code = e.Code
+
+	//todo: save error based on ref id
+	jsonErr.RefID = uuid.New()
+
+	str, err := json.Marshal(jsonErr)
+	if err != nil {
+		return ""
+	}
+	return string(str)
 }
