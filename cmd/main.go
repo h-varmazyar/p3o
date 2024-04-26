@@ -25,7 +25,6 @@ func main() {
 		log.WithError(err).Panicf("failed to create database")
 	}
 
-	ginEngine := gin.Default()
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:       configs.RedisAddress,
 		ClientName: "P3O",
@@ -39,11 +38,10 @@ func main() {
 		log.WithError(err).Panicf("failed to create link app")
 	}
 
-	controller := controllers.NewController(log, linkApp.GetService())
-	controller.RegisterRoutes(ginEngine)
-	if err = ginEngine.Run(configs.HttpAddress); err != nil {
-		log.WithError(err).Panicf("failed to run router engine")
+	if err = controllers.NewController(log, linkApp.GetService()); err != nil {
+		log.WithError(err).Panic("failed to start controllers")
 	}
+
 }
 
 func loadConfigs(log *logrus.Logger) (*Configs, error) {

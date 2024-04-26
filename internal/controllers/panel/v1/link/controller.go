@@ -21,11 +21,8 @@ func NewController(log *log.Logger, linkService linkService.Service) *Controller
 }
 
 func (c *Controller) createLink(ctx *gin.Context) {
-
-	req := &linkService.CreateLinkReq{
-		Key:     "",
-		RealUrl: "",
-	}
+	req := new(linkService.CreateLinkReq)
+	ctx.ShouldBindJSON(&req)
 
 	link, err := c.linkService.CreateLink(ctx, req)
 	if err != nil {

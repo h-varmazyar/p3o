@@ -19,7 +19,7 @@ func NewController(log *log.Logger, linkService linkService.Service) *Controller
 	return c
 }
 
-func (c *Controller) RegisterRoutes(router *gin.RouterGroup) {
-	panelRouter := router.Group("/panel")
+func (c *Controller) RegisterRoutes(router *gin.Engine) {
+	panelRouter := router.Group("/")
 	c.v1.RegisterRoutes(panelRouter)
 }
