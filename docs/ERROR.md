@@ -16,10 +16,11 @@ second part of error represent one level inside Internal section. for example
 in models section it represent each model or in controllers represent each api scope.
 
 #### controller
-| Code | Section |
-|------|---------|
-| 1    | api     |
-| 2    | panel   |
+| Code | Section  |
+|------|----------|
+| 1    | api      |
+| 2    | panel    |
+| 3    | redirect |
 
 #### models
 | Code | Section  |
