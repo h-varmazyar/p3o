@@ -5,6 +5,9 @@ func Cast(err error) *Error {
 	case nil:
 		return nil
 	case *Error:
+		if e.HttpCode == 0 {
+			e.HttpCode = DefaultHttpCode
+		}
 		return e
 	}
 	return &Error{

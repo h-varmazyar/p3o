@@ -1,4 +1,4 @@
-package repository
+package user
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 	"gorm.io/gorm"
 )
 
-const tableName = "links"
+const tableName = "users"
 
 type postgresRepository struct {
 	*db.DB
@@ -65,31 +65,10 @@ func migration(_ context.Context, dbInstance *db.DB) error {
 	return nil
 }
 
-func (r *postgresRepository) Create(ctx context.Context, link *entities.Link) error {
+func (r *postgresRepository) Create(ctx context.Context, link *entities.User) error {
 	err := r.PostgresDB.Save(link).Error
 	if err != nil {
-		return ErrFailedToCreateLink.AddOriginalError(err)
-	}
-	return nil
-}
-
-func (r *postgresRepository) ReturnByKey(ctx context.Context, key string) (*entities.Link, error) {
-	var link *entities.Link
-	err := r.PostgresDB.Model(new(entities.Link)).Where("key = ?", key).First(link).Error
-	if err != nil {
-		return nil, ErrLinkNotFound.AddOriginalError(err)
-	}
-	return link, nil
-}
-
-func (r *postgresRepository) Visit(_ context.Context, id uint) error {
-	err := r.PostgresDB.
-		Model(new(entities.Link)).
-		Where("id = ?", id).
-		Update("total_visit", gorm.Expr("total_visit + 1")).Error
-
-	if err != nil {
-		return ErrIncreaseVisitFailed.AddOriginalError(err)
+		return ErrFailedToCreateUser.AddOriginalError(err)
 	}
 	return nil
 }
