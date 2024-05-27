@@ -6,23 +6,42 @@ import (
 	"github.com/h-varmazyar/p3o/internal/entities"
 	db "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
 const tableName = "users"
 
-type postgresRepository struct {
+type Postgres struct {
 	*db.DB
 	log *log.Logger
 }
 
-func NewPostgresRepository(ctx context.Context, logger *log.Logger, db *db.DB) (Model, error) {
-	if err := migration(ctx, db); err != nil {
-		return nil, err
+type Params struct {
+	fx.In
+
+	Log     *log.Logger
+	DB      *db.DB
+	Context context.Context
+}
+
+type Result struct {
+	fx.Out
+
+	Model Model
+}
+
+func New(p Params) (Result, error) {
+	if err := migration(p.Context, p.DB); err != nil {
+		return Result{}, err
 	}
-	return &postgresRepository{
-		DB:  db,
-		log: logger,
+
+	postgresModel := &Postgres{
+		DB:  p.DB,
+		log: p.Log,
+	}
+	return Result{
+		Model: postgresModel,
 	}, nil
 }
 
@@ -65,7 +84,7 @@ func migration(_ context.Context, dbInstance *db.DB) error {
 	return nil
 }
 
-func (r *postgresRepository) Create(ctx context.Context, link *entities.User) error {
+func (r *Postgres) Create(ctx context.Context, link *entities.User) error {
 	err := r.PostgresDB.Save(link).Error
 	if err != nil {
 		return ErrFailedToCreateUser.AddOriginalError(err)
@@ -73,7 +92,7 @@ func (r *postgresRepository) Create(ctx context.Context, link *entities.User) er
 	return nil
 }
 
-func (r *postgresRepository) ReturnByMobile(ctx context.Context, mobile string) (*entities.User, error) {
+func (r *Postgres) ReturnByMobile(ctx context.Context, mobile string) (*entities.User, error) {
 	//err := r.PostgresDB.Save(link).Error
 	//if err != nil {
 	//	return ErrFailedToCreateUser.AddOriginalError(err)
@@ -81,7 +100,7 @@ func (r *postgresRepository) ReturnByMobile(ctx context.Context, mobile string) 
 	return nil, nil
 }
 
-func (r *postgresRepository) ReturnByEmail(ctx context.Context, email string) (*entities.User, error) {
+func (r *Postgres) ReturnByEmail(ctx context.Context, email string) (*entities.User, error) {
 	//err := r.PostgresDB.Save(link).Error
 	//if err != nil {
 	//	return ErrFailedToCreateUser.AddOriginalError(err)

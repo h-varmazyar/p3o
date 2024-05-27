@@ -2,10 +2,13 @@ package router
 
 import (
 	"context"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
+	"net"
+	"net/http"
 )
 
 type Router struct {
@@ -32,13 +35,26 @@ func New(lc fx.Lifecycle, params Params) Result {
 		v1Router: params.V1Router,
 		log:      params.Log,
 	}
+	router.RegisterRoutes(params.GinEngine)
+
+	srv := &http.Server{
+		Addr:    ":8765",
+		Handler: params.GinEngine,
+	}
+
 	lc.Append(fx.Hook{
 		OnStart: func(ctx context.Context) error {
-			router.RegisterRoutes(params.GinEngine)
+			ln, err := net.Listen("tcp", srv.Addr)
+			if err != nil {
+				fmt.Println("[My Demo] Failed to start HTTP Server at", srv.Addr)
+				return err
+			}
+			go srv.Serve(ln)
+			fmt.Println("[My Demo]Succeeded to start HTTP Server at", srv.Addr)
 			return nil
 		},
 		OnStop: func(ctx context.Context) error {
-			return nil
+			return srv.Shutdown(ctx)
 		},
 	})
 
@@ -46,9 +62,7 @@ func New(lc fx.Lifecycle, params Params) Result {
 }
 
 func (r *Router) RegisterRoutes(ginRouter *gin.Engine) {
+	r.log.Infof("********** registering routes")
 	apiRouter := ginRouter.Group("/api")
-
-	r.log.Infof("********** stating router")
-
 	r.v1Router.RegisterRoutes(apiRouter)
 }

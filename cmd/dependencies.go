@@ -4,13 +4,14 @@ import (
 	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/configs"
+	authController "github.com/h-varmazyar/p3o/internal/controllers/auth"
+	authModel "github.com/h-varmazyar/p3o/internal/models/auth"
 	"github.com/h-varmazyar/p3o/internal/router"
 	v1Router "github.com/h-varmazyar/p3o/internal/router/v1"
 	db "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
-	"net/http"
 )
 
 var ctx = func() context.Context {
@@ -25,9 +26,10 @@ var generalDependenciesModule = fx.Module(
 		configs.LoadConfigs,
 		db.NewDatabase,
 		initializeRedis,
+		initializeGin,
 	),
 	fx.Invoke(func(log *log.Logger) {
-		fx.Logger(log)
+		fx.WithLogger(log)
 		log.Infof("redirecting fx logger to app logger")
 	}),
 	fx.Invoke(func(redis *redis.Client, ctx context.Context) {
@@ -38,12 +40,16 @@ var generalDependenciesModule = fx.Module(
 
 var modelsDependenciesModule = fx.Module(
 	"models",
-	fx.Provide(),
+	fx.Provide(
+		authModel.New,
+	),
 )
 
 var controllersDependenciesModule = fx.Module(
 	"controllers",
-	fx.Provide(),
+	fx.Provide(
+		authController.New,
+	),
 )
 
 var routersDependenciesModule = fx.Module(
@@ -52,6 +58,9 @@ var routersDependenciesModule = fx.Module(
 		v1Router.New,
 		router.New,
 	),
+	fx.Invoke(func(log *log.Logger, router *router.Router) {
+		log.Infof("invoking router")
+	}),
 )
 
 func initializeDependencies() *fx.App {
@@ -75,35 +84,9 @@ func initializeRedis(configs *configs.Configs) *redis.Client {
 	})
 }
 
-func initializeGin(lc fx.Lifecycle) *gin.Engine {
-	r := gin.Default()
-	srv := &http.Server{
-		Addr:    ":8080",
-		Handler: r,
-	}
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			s := &Handler{
-				GinServer: r,
-			}
-			s.Say()
-			return srv.ListenAndServe()
-		},
-		OnStop: func(ctx context.Context) error {
-			return srv.Shutdown(ctx)
-		},
-	})
-	return r
-}
-
-type Handler struct {
-	GinServer *gin.Engine
-}
-
-func (s *Handler) Say() {
-	s.GinServer.GET("/ping", func(c *gin.Context) {
-		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
-		})
-	})
+func initializeGin(log *log.Logger) *gin.Engine {
+	gin.DefaultWriter = log.Writer()
+	gin.DefaultErrorWriter = log.Writer()
+	g := gin.Default()
+	return g
 }

@@ -2,7 +2,6 @@ package configs
 
 import (
 	gormext "github.com/h-varmazyar/gopack/gorm"
-	"github.com/h-varmazyar/p3o/internal/controllers"
 	"github.com/h-varmazyar/p3o/pkg/db/redis"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -10,9 +9,9 @@ import (
 )
 
 type Configs struct {
-	Controller  controllers.Configs `yaml:"controller"`
-	GormConfigs gormext.Configs     `yaml:"gormConfigs"`
-	RedisConfig redis.Configs       `yaml:"redisConfigs"`
+	AuthJWTSecret string          `yaml:"AuthJWTSecret"`
+	GormConfigs   gormext.Configs `yaml:"gormConfigs"`
+	RedisConfig   redis.Configs   `yaml:"redisConfigs"`
 }
 
 type Params struct {

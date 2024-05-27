@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/h-varmazyar/p3o/configs"
@@ -14,23 +13,28 @@ import (
 
 type Controller struct {
 	userModel user.Model
-	configs   *configs.ControllerConfigs
+	jwtSecret string
 }
 
-func New(lc fx.Lifecycle, configs *configs.ControllerConfigs, userModel user.Model) *Controller {
+type Params struct {
+	fx.In
+
+	Configs   *configs.Configs
+	UserModel user.Model
+}
+
+type Result struct {
+	fx.Out
+
+	Controller *Controller
+}
+
+func New(p Params) Result {
 	controller := &Controller{
-		userModel: userModel,
-		configs:   configs,
+		userModel: p.UserModel,
+		jwtSecret: p.Configs.AuthJWTSecret,
 	}
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			return nil
-		},
-	})
-	return controller
+	return Result{Controller: controller}
 }
 
 func (c *Controller) Login(ctx *gin.Context) {
@@ -77,7 +81,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString(c.configs.JWTSecret)
+	tokenString, err := token.SignedString(c.jwtSecret)
 	if err != nil {
 		utils.JsonHttpResponse(ctx, nil, ErrLoginFailed.AddOriginalError(err), false)
 		return
