@@ -2,45 +2,48 @@ package main
 
 import (
 	"context"
-	"github.com/gin-gonic/gin"
-	"github.com/h-varmazyar/p3o/internal/controllers"
-	"github.com/h-varmazyar/p3o/internal/models/link"
-	db2 "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
-	"github.com/redis/go-redis/v9"
+	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"go.uber.org/fx"
+	"net"
+	"net/http"
 )
 
 func main() {
-	log := new(logrus.Logger)
-	ctx := context.Background()
+	//log := new(logrus.Logger)
+	//ctx := context.Background()
+	//
+	//configs, err := loadConfigs(log)
+	//if err != nil {
+	//	log.WithError(err).Panicf("failed to load configs")
+	//}
 
-	configs, err := loadConfigs(log)
-	if err != nil {
-		log.WithError(err).Panicf("failed to load configs")
-	}
+	//db, err := db2.NewDatabase(ctx, *configs.DB)
+	//if err != nil {
+	//	log.WithError(err).Panicf("failed to create database")
+	//}
+	//
+	//redisClient := redis.NewClient(&redis.Options{
+	//	Addr:       configs.RedisAddress,
+	//	ClientName: "P3O",
+	//	Username:   configs.RedisPassword,
+	//	Password:   configs.RedisPassword,
+	//	DB:         configs.LinkCacheDB,
+	//})
+	//
+	//linkApp, err := link.NewApp(ctx, log, db, redisClient, configs.LinkApp)
+	//if err != nil {
+	//	log.WithError(err).Panicf("failed to create link app")
+	//}
+	//
+	//if err = controllers.NewController(log, linkApp.GetService()); err != nil {
+	//	log.WithError(err).Panic("failed to start controllers")
+	//}
 
-	db, err := db2.NewDatabase(ctx, *configs.DB)
-	if err != nil {
-		log.WithError(err).Panicf("failed to create database")
-	}
+	fx := initializeDependencies()
 
-	redisClient := redis.NewClient(&redis.Options{
-		Addr:       configs.RedisAddress,
-		ClientName: "P3O",
-		Username:   configs.RedisPassword,
-		Password:   configs.RedisPassword,
-		DB:         configs.LinkCacheDB,
-	})
-
-	linkApp, err := link.NewApp(ctx, log, db, redisClient, configs.LinkApp)
-	if err != nil {
-		log.WithError(err).Panicf("failed to create link app")
-	}
-
-	if err = controllers.NewController(log, linkApp.GetService()); err != nil {
-		log.WithError(err).Panic("failed to start controllers")
-	}
+	fx.Run()
 
 }
 
@@ -68,4 +71,23 @@ func loadConfigs(log *logrus.Logger) (*Configs, error) {
 	}
 
 	return conf, nil
+}
+
+func NewHTTPServer(lc fx.Lifecycle) *http.Server {
+	srv := &http.Server{Addr: ":8080"}
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			ln, err := net.Listen("tcp", srv.Addr)
+			if err != nil {
+				return err
+			}
+			fmt.Println("Starting HTTP server at", srv.Addr)
+			go srv.Serve(ln)
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			return srv.Shutdown(ctx)
+		},
+	})
+	return srv
 }

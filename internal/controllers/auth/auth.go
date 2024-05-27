@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/h-varmazyar/p3o/internal/entities"
-	userRepository "github.com/h-varmazyar/p3o/internal/models/user"
+	userRepository "github.com/h-varmazyar/p3o/internal/models/auth"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 )
 
@@ -12,7 +12,7 @@ func (c *Controller) fetchUser(ctx context.Context, username string) (*entities.
 	var err error
 	user := new(entities.User)
 	if utils.IsValidMobile(username) {
-		user, err = c.repository.ReturnByMobile(ctx, username)
+		user, err = c.userModel.ReturnByMobile(ctx, username)
 		if err != nil {
 			if errors.Is(err, userRepository.ErrUserNotFound) {
 				user = &entities.User{Mobile: username}
@@ -21,7 +21,7 @@ func (c *Controller) fetchUser(ctx context.Context, username string) (*entities.
 			return nil, false, err
 		}
 	} else if utils.IsValidEmail(username) {
-		user, err = c.repository.ReturnByEmail(ctx, username)
+		user, err = c.userModel.ReturnByEmail(ctx, username)
 		if err != nil {
 			if errors.Is(err, userRepository.ErrUserNotFound) {
 				user = &entities.User{Email: username}

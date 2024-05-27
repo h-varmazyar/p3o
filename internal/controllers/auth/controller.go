@@ -1,18 +1,36 @@
 package auth
 
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/h-varmazyar/p3o/configs"
 	"github.com/h-varmazyar/p3o/internal/entities"
-	userRepository "github.com/h-varmazyar/p3o/internal/models/user"
+	user "github.com/h-varmazyar/p3o/internal/models/auth"
 	"github.com/h-varmazyar/p3o/pkg/utils"
+	"go.uber.org/fx"
 	"time"
 )
 
 type Controller struct {
-	repository userRepository.Repository
-	configs    *configs.ControllerConfigs
+	userModel user.Model
+	configs   *configs.ControllerConfigs
+}
+
+func New(lc fx.Lifecycle, configs *configs.ControllerConfigs, userModel user.Model) *Controller {
+	controller := &Controller{
+		userModel: userModel,
+		configs:   configs,
+	}
+	lc.Append(fx.Hook{
+		OnStart: func(ctx context.Context) error {
+			return nil
+		},
+		OnStop: func(ctx context.Context) error {
+			return nil
+		},
+	})
+	return controller
 }
 
 func (c *Controller) Login(ctx *gin.Context) {
@@ -40,7 +58,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 			utils.JsonHttpResponse(ctx, nil, ErrPasswordHashingFailed.AddOriginalError(err), false)
 			return
 		}
-		err = c.repository.Create(ctx, user)
+		err = c.userModel.Create(ctx, user)
 		if err != nil {
 			utils.JsonHttpResponse(ctx, nil, err, false)
 			return

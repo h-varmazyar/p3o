@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
+	"go.uber.org/fx"
 )
 
 type Router struct {
@@ -10,8 +11,24 @@ type Router struct {
 	authController *auth.Controller
 }
 
-func NewV1Router() *Router {
-	return &Router{}
+type Params struct {
+	fx.In
+
+	AuthController *auth.Controller
+}
+
+type Result struct {
+	fx.Out
+
+	Router *Router
+}
+
+func New(params Params) Result {
+	router := &Router{
+		authController: params.AuthController,
+	}
+
+	return Result{Router: router}
 }
 
 func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {

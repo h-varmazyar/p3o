@@ -3,7 +3,9 @@ package db
 import (
 	"context"
 	gormext "github.com/h-varmazyar/gopack/gorm"
+	"github.com/h-varmazyar/p3o/configs"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -11,20 +13,33 @@ type DB struct {
 	PostgresDB *gorm.DB
 }
 
-func NewDatabase(ctx context.Context, configs gormext.Configs) (*DB, error) {
+type Params struct {
+	fx.In
+
+	Context context.Context
+	Log     *log.Logger
+	Configs *configs.Configs
+}
+
+type Result struct {
+}
+
+func NewDatabase(p Params) (*DB, error) {
 	db := new(DB)
-	if configs.DbType == gormext.PostgreSQL {
-		postgres, err := newPostgres(ctx, configs)
+	if p.Configs.GormConfigs.DbType == gormext.PostgreSQL {
+		postgres, err := newPostgres(p.Context, p.Configs.GormConfigs)
 		if err != nil {
 			log.WithError(err).Error("failed to create new postgres")
 			return nil, err
 		}
 		db.PostgresDB = postgres
 
-		err = createMigrateTable(ctx, db)
+		err = createMigrateTable(p.Context, db)
 		if err != nil {
 			return nil, err
 		}
+	} else {
+		return nil, ErrInvalidDB
 	}
 
 	return db, nil

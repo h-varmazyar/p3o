@@ -12,7 +12,7 @@ import (
 
 var (
 	languages map[language.Tag]*i18n.Localizer
-	i10nPath  = "./assets/locales/errors"
+	i10nPath  = "./assets/locales"
 )
 
 func init() {

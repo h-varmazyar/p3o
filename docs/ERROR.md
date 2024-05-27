@@ -10,6 +10,7 @@ first part of error represent Internal section errors
 |------|------------|
 | 1    | controller |
 | 2    | models     |
+| 9    | pkg        |
 
 ### y:
 second part of error represent one level inside Internal section. for example
@@ -27,6 +28,11 @@ in models section it represent each model or in controllers represent each api s
 |------|----------|
 | 1    | link app |
 | 2    | user app |
+
+#### pkg
+| Code | Section  |
+|------|----------|
+| 1    | db pkg   |
 
 ### z:
 The `z` number represent inner section of each scope

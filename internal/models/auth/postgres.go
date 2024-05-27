@@ -1,4 +1,4 @@
-package user
+package auth
 
 import (
 	"context"
@@ -16,7 +16,7 @@ type postgresRepository struct {
 	log *log.Logger
 }
 
-func NewPostgresRepository(ctx context.Context, logger *log.Logger, db *db.DB) (Repository, error) {
+func NewPostgresRepository(ctx context.Context, logger *log.Logger, db *db.DB) (Model, error) {
 	if err := migration(ctx, db); err != nil {
 		return nil, err
 	}
@@ -71,4 +71,20 @@ func (r *postgresRepository) Create(ctx context.Context, link *entities.User) er
 		return ErrFailedToCreateUser.AddOriginalError(err)
 	}
 	return nil
+}
+
+func (r *postgresRepository) ReturnByMobile(ctx context.Context, mobile string) (*entities.User, error) {
+	//err := r.PostgresDB.Save(link).Error
+	//if err != nil {
+	//	return ErrFailedToCreateUser.AddOriginalError(err)
+	//}
+	return nil, nil
+}
+
+func (r *postgresRepository) ReturnByEmail(ctx context.Context, email string) (*entities.User, error) {
+	//err := r.PostgresDB.Save(link).Error
+	//if err != nil {
+	//	return ErrFailedToCreateUser.AddOriginalError(err)
+	//}
+	return nil, nil
 }
