@@ -1,26 +1,53 @@
 package auth
 
 import (
+	"crypto/rsa"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-	"github.com/h-varmazyar/p3o/configs"
 	"github.com/h-varmazyar/p3o/internal/entities"
-	user "github.com/h-varmazyar/p3o/internal/models/auth"
+	"github.com/h-varmazyar/p3o/internal/models/auth"
+	"github.com/h-varmazyar/p3o/pkg/environments"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	"go.uber.org/fx"
 	"time"
 )
 
+var (
+	configs   *config
+	signKey   *rsa.PrivateKey
+	verifyKey *rsa.PublicKey
+)
+
+func init() {
+	configs = new(config)
+	err := environments.LoadEnvironments(configs)
+	if err != nil {
+		panic(fmt.Sprintf("failed to load auth controller configs: %v", err))
+	}
+	verifyKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(configs.JWTPublicKey))
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse public rsa key: %v", err))
+	}
+	signKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(configs.JWTPrivateKey))
+	if err != nil {
+		panic(fmt.Sprintf("failed to parse private rsa key: %v", err))
+	}
+}
+
+type config struct {
+	JWTPublicKey  string `env:"JWT_PUBLIC_KEY,file,required"`
+	JWTPrivateKey string `env:"JWT_PRIVATE_KEY,file,required"`
+}
+
 type Controller struct {
-	userModel user.Model
-	jwtSecret string
+	userModel auth.Model
 }
 
 type Params struct {
 	fx.In
 
-	Configs   *configs.Configs
-	UserModel user.Model
+	UserModel auth.Model
 }
 
 type Result struct {
@@ -32,7 +59,6 @@ type Result struct {
 func New(p Params) Result {
 	controller := &Controller{
 		userModel: p.UserModel,
-		jwtSecret: p.Configs.AuthJWTSecret,
 	}
 	return Result{Controller: controller}
 }
@@ -79,9 +105,9 @@ func (c *Controller) Login(ctx *gin.Context) {
 		},
 	}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 
-	tokenString, err := token.SignedString(c.jwtSecret)
+	tokenString, err := token.SignedString(signKey)
 	if err != nil {
 		utils.JsonHttpResponse(ctx, nil, ErrLoginFailed.AddOriginalError(err), false)
 		return

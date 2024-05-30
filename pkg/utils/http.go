@@ -3,13 +3,14 @@ package utils
 import (
 	"github.com/gin-gonic/gin"
 	localErr "github.com/h-varmazyar/p3o/pkg/errors"
+	log "github.com/sirupsen/logrus"
 	"net/http"
 )
 
 type httpResponse struct {
 	Message interface{}
 	Success bool
-	Error   string
+	Error   interface{}
 }
 
 func JsonHttpResponse(ctx *gin.Context, response interface{}, err error, success bool) {
@@ -22,9 +23,10 @@ func JsonHttpResponse(ctx *gin.Context, response interface{}, err error, success
 		resp.Message = response
 	} else {
 		castedErr := localErr.Cast(err)
-		resp.Error = castedErr.Json(ctx)
+		resp.Error = castedErr
 		statusCode = castedErr.HttpCode
+		log.WithError(err).Error(castedErr, castedErr.Details(), castedErr.Original())
 	}
 
-	ctx.JSON(statusCode, resp)
+	ctx.IndentedJSON(statusCode, resp)
 }

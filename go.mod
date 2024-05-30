@@ -4,19 +4,21 @@ go 1.21
 
 require (
 	github.com/BurntSushi/toml v1.3.2
+	github.com/caarlos0/env/v11 v11.0.1
 	github.com/gin-gonic/gin v1.9.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible
-	github.com/google/uuid v1.3.1
-	github.com/h-varmazyar/gopack v0.0.0-20230609144234-73d2561a33cf
+	github.com/google/uuid v1.6.0
+	github.com/h-varmazyar/gopack v0.0.0-20240530064019-5c10758f4ae9
+	github.com/h-varmazyar/gopet v1.0.0
+	github.com/joho/godotenv v1.4.0
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
 	github.com/redis/go-redis/v9 v9.2.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.17.0
 	go.uber.org/fx v1.21.1
 	golang.org/x/crypto v0.22.0
-	golang.org/x/sync v0.7.0
 	golang.org/x/text v0.14.0
-	gorm.io/gorm v1.25.5
+	gorm.io/gorm v1.25.10
 )
 
 require (
@@ -69,6 +71,6 @@ require (
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/driver/mysql v1.5.2 // indirect
-	gorm.io/driver/postgres v1.5.3 // indirect
+	gorm.io/driver/mysql v1.5.6 // indirect
+	gorm.io/driver/postgres v1.5.7 // indirect
 )

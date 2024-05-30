@@ -12,6 +12,7 @@ type Error struct {
 	Message  string
 	HttpCode int
 	Code     int
+	RefID    uuid.UUID
 
 	originalError error
 	translates    map[language.Tag]string
@@ -76,7 +77,7 @@ func (e *Error) Json(ctx context.Context) string {
 	jsonErr.Code = e.Code
 
 	//todo: save error based on ref id
-	jsonErr.RefID = uuid.New()
+	jsonErr.RefID = e.RefID
 
 	str, err := json.Marshal(jsonErr)
 	if err != nil {

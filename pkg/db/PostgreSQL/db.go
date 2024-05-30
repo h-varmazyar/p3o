@@ -2,12 +2,22 @@ package db
 
 import (
 	"context"
+	"fmt"
 	gormext "github.com/h-varmazyar/gopack/gorm"
-	"github.com/h-varmazyar/p3o/configs"
+	"github.com/h-varmazyar/p3o/pkg/environments"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
+
+var configs *gormext.Configs
+
+func init() {
+	configs = new(gormext.Configs)
+	if err := environments.LoadEnvironments(configs); err != nil {
+		panic(fmt.Sprintf("failed to load auth db configs: %v", err))
+	}
+}
 
 type DB struct {
 	PostgresDB *gorm.DB
@@ -18,7 +28,6 @@ type Params struct {
 
 	Context context.Context
 	Log     *log.Logger
-	Configs *configs.Configs
 }
 
 type Result struct {
@@ -26,8 +35,8 @@ type Result struct {
 
 func NewDatabase(p Params) (*DB, error) {
 	db := new(DB)
-	if p.Configs.GormConfigs.DbType == gormext.PostgreSQL {
-		postgres, err := newPostgres(p.Context, p.Configs.GormConfigs)
+	if configs.DbType == gormext.PostgreSQL {
+		postgres, err := newPostgres(p.Context, *configs)
 		if err != nil {
 			log.WithError(err).Error("failed to create new postgres")
 			return nil, err

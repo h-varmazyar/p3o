@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/h-varmazyar/p3o/internal/entities"
 	db "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
@@ -61,7 +62,7 @@ func migration(_ context.Context, dbInstance *db.DB) error {
 	newMigrations := make([]*db.Migration, 0)
 	err = dbInstance.PostgresDB.Transaction(func(tx *gorm.DB) error {
 		if _, ok := migrations["v1.0.0"]; !ok {
-			err = tx.AutoMigrate(new(entities.Link))
+			err = tx.AutoMigrate(new(entities.User))
 			if err != nil {
 				return err
 			}
@@ -84,26 +85,34 @@ func migration(_ context.Context, dbInstance *db.DB) error {
 	return nil
 }
 
-func (r *Postgres) Create(ctx context.Context, link *entities.User) error {
-	err := r.PostgresDB.Save(link).Error
+func (r *Postgres) Create(_ context.Context, user *entities.User) error {
+	err := r.PostgresDB.Save(user).Error
 	if err != nil {
 		return ErrFailedToCreateUser.AddOriginalError(err)
 	}
 	return nil
 }
 
-func (r *Postgres) ReturnByMobile(ctx context.Context, mobile string) (*entities.User, error) {
-	//err := r.PostgresDB.Save(link).Error
-	//if err != nil {
-	//	return ErrFailedToCreateUser.AddOriginalError(err)
-	//}
-	return nil, nil
+func (r *Postgres) ReturnByMobile(_ context.Context, mobile string) (*entities.User, error) {
+	user := new(entities.User)
+	err := r.PostgresDB.Model(new(entities.User)).Where("mobile = ?", mobile).First(user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, ErrFailedToFetchUser.AddOriginalError(err)
+	}
+	return user, nil
 }
 
-func (r *Postgres) ReturnByEmail(ctx context.Context, email string) (*entities.User, error) {
-	//err := r.PostgresDB.Save(link).Error
-	//if err != nil {
-	//	return ErrFailedToCreateUser.AddOriginalError(err)
-	//}
-	return nil, nil
+func (r *Postgres) ReturnByEmail(_ context.Context, email string) (*entities.User, error) {
+	user := new(entities.User)
+	err := r.PostgresDB.Model(new(entities.User)).Where("email = ?", email).First(user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, ErrUserNotFound
+		}
+		return nil, ErrFailedToFetchUser.AddOriginalError(err)
+	}
+	return user, nil
 }

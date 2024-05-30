@@ -23,19 +23,18 @@ var generalDependenciesModule = fx.Module(
 	fx.Provide(
 		ctx,
 		log.New,
-		configs.LoadConfigs,
 		db.NewDatabase,
-		initializeRedis,
+		//initializeRedis,
 		initializeGin,
 	),
 	fx.Invoke(func(log *log.Logger) {
 		fx.WithLogger(log)
 		log.Infof("redirecting fx logger to app logger")
 	}),
-	fx.Invoke(func(redis *redis.Client, ctx context.Context) {
-		ping, err := redis.Ping(ctx).Result()
-		log.Infof("redis ping: %v - %v", ping, err)
-	}),
+	//fx.Invoke(func(redis *redis.Client, ctx context.Context) {
+	//	ping, err := redis.Ping(ctx).Result()
+	//	log.Infof("redis ping: %v - %v", ping, err)
+	//}),
 )
 
 var modelsDependenciesModule = fx.Module(
