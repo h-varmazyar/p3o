@@ -2,8 +2,9 @@ package workers
 
 import (
 	"context"
-	"github.com/h-varmazyar/p3o/internal/models/link/repository"
+	"github.com/h-varmazyar/p3o/internal/models/link"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 )
 
 type VisitRecord struct {
@@ -14,27 +15,38 @@ type VisitRecord struct {
 type VisitsWorker struct {
 	log       *log.Logger
 	visitChan chan VisitRecord
-	persistDB repository.Repository
+	persistDB link.Model
 }
 
-var worker *VisitsWorker
+type Params struct {
+	fx.In
 
-func StartVisitWorker(log *log.Logger, visitChan chan VisitRecord, persistDB repository.Repository) error {
-	if worker != nil {
-		return ErrVisitWorkerStartedBefore
-	}
+	Log       *log.Logger
+	VisitChan chan VisitRecord
+	PersistDB link.Model
+}
 
-	worker = &VisitsWorker{
-		log:       log,
-		visitChan: visitChan,
-		persistDB: persistDB,
+type Result struct {
+	fx.Out
+
+	Worker *VisitsWorker
+}
+
+func NewVisitWorker(p Params) (Result, error) {
+	worker := &VisitsWorker{
+		log:       p.Log,
+		visitChan: p.VisitChan,
+		persistDB: p.PersistDB,
 	}
 
 	if err := worker.start(); err != nil {
-		return err
+		return Result{}, err
 	}
 
-	return nil
+	result := Result{
+		Worker: worker,
+	}
+	return result, nil
 }
 
 func (w VisitsWorker) start() error {

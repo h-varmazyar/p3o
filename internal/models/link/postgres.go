@@ -1,4 +1,4 @@
-package repository
+package link
 
 import (
 	"context"
@@ -6,6 +6,7 @@ import (
 	"github.com/h-varmazyar/p3o/internal/entities"
 	db "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/fx"
 	"gorm.io/gorm"
 )
 
@@ -16,17 +17,36 @@ type postgresRepository struct {
 	log *log.Logger
 }
 
-func NewPostgresRepository(ctx context.Context, logger *log.Logger, db *db.DB) (Repository, error) {
-	if err := migration(ctx, db); err != nil {
-		return nil, err
+type Params struct {
+	fx.In
+
+	Log     *log.Logger
+	DB      *db.DB
+	Context context.Context
+}
+
+type Result struct {
+	fx.Out
+
+	Model Model
+}
+
+func New(p Params) (Result, error) {
+	if err := migration(p.Context, p.DB); err != nil {
+		return Result{}, err
 	}
-	return &postgresRepository{
-		DB:  db,
-		log: logger,
+
+	postgresModel := &postgresRepository{
+		DB:  p.DB,
+		log: p.Log,
+	}
+	return Result{
+		Model: postgresModel,
 	}, nil
 }
 
 func migration(_ context.Context, dbInstance *db.DB) error {
+	log.Infof("***************** migrating database %v", tableName)
 	var err error
 	migrations := make(map[string]struct{})
 	tags := make([]string, 0)

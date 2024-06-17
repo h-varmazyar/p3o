@@ -5,9 +5,12 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/configs"
 	authController "github.com/h-varmazyar/p3o/internal/controllers/auth"
+	linkController "github.com/h-varmazyar/p3o/internal/controllers/link"
 	authModel "github.com/h-varmazyar/p3o/internal/models/auth"
+	linkModel "github.com/h-varmazyar/p3o/internal/models/link"
 	"github.com/h-varmazyar/p3o/internal/router"
 	v1Router "github.com/h-varmazyar/p3o/internal/router/v1"
+	"github.com/h-varmazyar/p3o/internal/workers"
 	db "github.com/h-varmazyar/p3o/pkg/db/PostgreSQL"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
@@ -26,6 +29,7 @@ var generalDependenciesModule = fx.Module(
 		db.NewDatabase,
 		//initializeRedis,
 		initializeGin,
+		initializeVisitChannel,
 	),
 	fx.Invoke(func(log *log.Logger) {
 		fx.WithLogger(log)
@@ -41,6 +45,19 @@ var modelsDependenciesModule = fx.Module(
 	"models",
 	fx.Provide(
 		authModel.New,
+		linkModel.New,
+	),
+)
+
+var cacheDependenciesModule = fx.Module(
+	"cache",
+	fx.Provide(),
+)
+
+var workersDependenciesModule = fx.Module(
+	"workers",
+	fx.Provide(
+		workers.NewVisitWorker,
 	),
 )
 
@@ -48,6 +65,7 @@ var controllersDependenciesModule = fx.Module(
 	"controllers",
 	fx.Provide(
 		authController.New,
+		linkController.New,
 	),
 )
 
@@ -68,6 +86,8 @@ func initializeDependencies() *fx.App {
 		modelsDependenciesModule,
 		controllersDependenciesModule,
 		routersDependenciesModule,
+		workersDependenciesModule,
+		cacheDependenciesModule,
 	)
 
 	return diApp
@@ -88,4 +108,8 @@ func initializeGin(log *log.Logger) *gin.Engine {
 	gin.DefaultErrorWriter = log.Writer()
 	g := gin.Default()
 	return g
+}
+
+func initializeVisitChannel() chan workers.VisitRecord {
+	return make(chan workers.VisitRecord, 10000)
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/h-varmazyar/p3o/internal/entities"
 	userRepository "github.com/h-varmazyar/p3o/internal/models/auth"
 	"github.com/h-varmazyar/p3o/pkg/utils"
+	log "github.com/sirupsen/logrus"
 )
 
 func (c *Controller) fetchUser(ctx context.Context, username string) (*entities.User, bool, error) {
@@ -30,6 +31,7 @@ func (c *Controller) fetchUser(ctx context.Context, username string) (*entities.
 			return nil, false, err
 		}
 	} else {
+		log.Infof("username: %v", username)
 		return nil, false, ErrInvalidUsernamePassword
 	}
 	return user, true, nil

@@ -1,4 +1,4 @@
-package repository
+package link
 
 import (
 	"context"
@@ -15,7 +15,7 @@ type redisRepository struct {
 	linkTTL time.Duration
 }
 
-func NewRedisRepository(_ context.Context, logger *log.Logger, redisClient *redis.Client, linkTTL time.Duration) (Repository, error) {
+func NewRedisRepository(_ context.Context, logger *log.Logger, redisClient *redis.Client, linkTTL time.Duration) (Model, error) {
 	return &redisRepository{
 		client:  redisClient,
 		log:     logger,

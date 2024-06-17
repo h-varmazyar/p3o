@@ -21,7 +21,19 @@ K
 internal/models/link/app.go,8/0/80116ae3d5bd6aacc5adf46448046cf0baf570a9
 Y
 )internal/controllers/panel/controllers.go,1/8/18a1d33493c1ccbb6b734e1330da89e200ee074d
-S
-#internal/controllers/controllers.go,5/5/55c1535922cf6159e9a04b8434d5ee2aa8a5a273
 ;
 cmd/main.go,9/3/93310a20c22640d80343161f98be28beb14eb4e9
+>
+cmd/configs.go,6/5/65c4af59c76f3ab67d47dd8ae194be60f7264557
+C
+cmd/dependencies.go,b/6/b6645434c144df503c9fc6da14b5db00dd9f82ef
+L
+internal/router/v1/routes.go,c/6/c62bd5f2605e4a07c4692699d0088cd0c541d139
+B
+configs/configs.go,6/3/63ef42182364cccb4ceee8c18423e69d32ca3c0b
+H
+pkg/errors/translator.go,3/4/34f43878fda2ae25453f45c5ee478961f10c659e
+I
+internal/router/router.go,d/3/d35f86d8ee46b9d4c359761b948caee53f5f3ecd
+W
+'internal/controllers/auth/controller.go,9/b/9b379fa71b5ad3f961b3b81b8e7c024790732dc9

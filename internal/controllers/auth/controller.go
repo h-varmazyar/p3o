@@ -9,6 +9,7 @@ import (
 	"github.com/h-varmazyar/p3o/internal/models/auth"
 	"github.com/h-varmazyar/p3o/pkg/environments"
 	"github.com/h-varmazyar/p3o/pkg/utils"
+	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 	"time"
 )
@@ -78,8 +79,9 @@ func (c *Controller) Login(ctx *gin.Context) {
 	}
 
 	if found {
-		if !utils.CompareHashPassword(loginReq.Password, user.HashedPassword) {
-			utils.JsonHttpResponse(ctx, nil, ErrInvalidUsernamePassword, false)
+		if err = utils.CompareHashPassword(loginReq.Password, user.HashedPassword); err != nil {
+			log.WithError(err).Error("failed to generage hashed password")
+			utils.JsonHttpResponse(ctx, nil, ErrInvalidUsernamePassword.AddOriginalError(err), false)
 			return
 		}
 	} else {
