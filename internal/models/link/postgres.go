@@ -46,7 +46,6 @@ func New(p Params) (Result, error) {
 }
 
 func migration(_ context.Context, dbInstance *db.DB) error {
-	log.Infof("***************** migrating database %v", tableName)
 	var err error
 	migrations := make(map[string]struct{})
 	tags := make([]string, 0)
@@ -93,8 +92,24 @@ func (r *postgresRepository) Create(ctx context.Context, link *entities.Link) er
 	return nil
 }
 
-func (r *postgresRepository) ReturnByKey(ctx context.Context, key string) (*entities.Link, error) {
-	var link *entities.Link
+func (r *postgresRepository) TotalCounts(_ context.Context) (int64, error) {
+	count := int64(0)
+	if err := r.PostgresDB.Table(tableName).Count(&count).Error; err != nil {
+		return 0, ErrLinkCountFetchFailed.AddOriginalError(err)
+	}
+	return count, nil
+}
+
+func (r *postgresRepository) TotalVisits(ctx context.Context) (int64, error) {
+	sum := int64(0)
+	if err := r.PostgresDB.Table(tableName).Select("sum(total_visit)").Row().Scan(&sum); err != nil {
+		return 0, ErrVisitCountFetchFailed.AddOriginalError(err)
+	}
+	return sum, nil
+}
+
+func (r *postgresRepository) ReturnByKey(_ context.Context, key string) (*entities.Link, error) {
+	link := new(entities.Link)
 	err := r.PostgresDB.Model(new(entities.Link)).Where("key = ?", key).First(link).Error
 	if err != nil {
 		return nil, ErrLinkNotFound.AddOriginalError(err)

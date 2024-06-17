@@ -45,7 +45,9 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		authRouter.DELETE("/logout", r.authController.Logout)
 	}
 	{
-		linkRouter := v1Router.Group("/link")
-		linkRouter.POST("/", r.linkController.Create)
+		linkRouter := v1Router.Group("/links")
+		linkRouter.POST("", r.linkController.Create)
+		linkRouter.GET("/counts", r.linkController.Counts)
+		linkRouter.GET("/visits", r.linkController.Visits)
 	}
 }

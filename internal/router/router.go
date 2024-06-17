@@ -4,7 +4,10 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/h-varmazyar/p3o/internal/models/link"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
+	"github.com/h-varmazyar/p3o/internal/workers"
+	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 	"net"
@@ -22,6 +25,8 @@ type Params struct {
 	Log       *log.Logger
 	GinEngine *gin.Engine
 	V1Router  *v1.Router
+	LinkModel link.Model
+	VisitChan chan workers.VisitRecord
 }
 
 type Result struct {
@@ -35,6 +40,7 @@ func New(lc fx.Lifecycle, params Params) Result {
 		v1Router: params.V1Router,
 		log:      params.Log,
 	}
+	handleRedirects(params.GinEngine, params.LinkModel, params.VisitChan)
 	router.RegisterRoutes(params.GinEngine)
 
 	srv := &http.Server{
@@ -78,4 +84,24 @@ func (r *Router) RegisterRoutes(ginRouter *gin.Engine) {
 	})
 	apiRouter := ginRouter.Group("/api")
 	r.v1Router.RegisterRoutes(apiRouter)
+}
+
+func handleRedirects(router *gin.Engine, linkModel link.Model, visitChannel chan workers.VisitRecord) {
+	router.GET("/:key", func(c *gin.Context) {
+		key := c.Param("key")
+		link, err := linkModel.ReturnByKey(c, key)
+		if err != nil {
+			utils.JsonHttpResponse(c, nil, err, false)
+			return
+		}
+		visitChannel <- workers.VisitRecord{
+			LinkId:    link.ID,
+			IpAddress: getIpAddress(c),
+		}
+		c.Redirect(http.StatusTemporaryRedirect, link.RealLink)
+	})
+}
+
+func getIpAddress(c *gin.Context) string {
+	return c.Request.RemoteAddr
 }

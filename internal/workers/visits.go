@@ -32,7 +32,7 @@ type Result struct {
 	Worker *VisitsWorker
 }
 
-func NewVisitWorker(p Params) (Result, error) {
+func NewVisitWorker(p Params) (*VisitsWorker, error) {
 	worker := &VisitsWorker{
 		log:       p.Log,
 		visitChan: p.VisitChan,
@@ -40,20 +40,17 @@ func NewVisitWorker(p Params) (Result, error) {
 	}
 
 	if err := worker.start(); err != nil {
-		return Result{}, err
+		return nil, err
 	}
 
-	result := Result{
-		Worker: worker,
-	}
-	return result, nil
+	//result := Result{
+	//	Worker: worker,
+	//}
+	return worker, nil
 }
 
 func (w VisitsWorker) start() error {
-	if w.visitChan == nil {
-		return ErrNilVisitChannel
-	}
-
+	w.log.Infof("************** visit worker started")
 	go func() {
 		for record := range w.visitChan {
 			if err := w.persistDB.Visit(context.Background(), record.LinkId); err != nil {

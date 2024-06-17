@@ -93,6 +93,22 @@ func (c *Controller) Create(ctx *gin.Context) {
 	utils.JsonHttpResponse(ctx, resp, nil, true)
 }
 
+func (c *Controller) Counts(ctx *gin.Context) {
+	if totalLinkCount, err := c.linkModel.TotalCounts(ctx); err != nil {
+		utils.JsonHttpResponse(ctx, nil, err, false)
+	} else {
+		utils.JsonHttpResponse(ctx, totalLinkCount, nil, true)
+	}
+}
+
+func (c *Controller) Visits(ctx *gin.Context) {
+	if totalVisits, err := c.linkModel.TotalVisits(ctx); err != nil {
+		utils.JsonHttpResponse(ctx, nil, err, false)
+	} else {
+		utils.JsonHttpResponse(ctx, totalVisits, nil, true)
+	}
+}
+
 //func (c *Controller) Fetch(ctx *gin.Context) {
 //	req := new(FetchLinkReq)
 //	link, err := c.LinkCache.ReturnByKey(ctx, req.Key)

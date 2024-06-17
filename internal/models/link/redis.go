@@ -35,6 +35,14 @@ func (r *redisRepository) Create(ctx context.Context, link *entities.Link) error
 	return nil
 }
 
+func (r *redisRepository) TotalCounts(_ context.Context) (int64, error) {
+	return 0, ErrUnimplemented
+}
+
+func (r *redisRepository) TotalVisits(_ context.Context) (int64, error) {
+	return 0, ErrUnimplemented
+}
+
 func (r *redisRepository) ReturnByKey(ctx context.Context, key string) (*entities.Link, error) {
 	exp := r.client.Get(ctx, key)
 	if exp.Err() != nil {

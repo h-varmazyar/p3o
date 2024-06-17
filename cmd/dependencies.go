@@ -59,6 +59,9 @@ var workersDependenciesModule = fx.Module(
 	fx.Provide(
 		workers.NewVisitWorker,
 	),
+	fx.Invoke(func(log *log.Logger, visitWorker *workers.VisitsWorker) {
+		log.Infof("Invoking visits worker")
+	}),
 )
 
 var controllersDependenciesModule = fx.Module(
