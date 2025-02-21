@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"github.com/h-varmazyar/p3o/internal/entities"
-	userRepository "github.com/h-varmazyar/p3o/internal/models/auth"
+	userRepository "github.com/h-varmazyar/p3o/internal/models/user"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )

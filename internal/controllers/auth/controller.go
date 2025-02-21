@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"github.com/h-varmazyar/p3o/internal/entities"
-	"github.com/h-varmazyar/p3o/internal/models/auth"
+	"github.com/h-varmazyar/p3o/internal/models/user"
 	"github.com/h-varmazyar/p3o/pkg/environments"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
@@ -42,13 +42,13 @@ type config struct {
 }
 
 type Controller struct {
-	userModel auth.Model
+	userModel user.Model
 }
 
 type Params struct {
 	fx.In
 
-	UserModel auth.Model
+	UserModel user.Model
 }
 
 type Result struct {

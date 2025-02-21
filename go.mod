@@ -12,7 +12,7 @@ require (
 	github.com/h-varmazyar/gopet v1.0.0
 	github.com/joho/godotenv v1.4.0
 	github.com/nicksnyder/go-i18n/v2 v2.2.2
-	github.com/redis/go-redis/v9 v9.2.1
+	github.com/redis/go-redis/v9 v9.6.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.17.0
 	go.uber.org/fx v1.21.1
