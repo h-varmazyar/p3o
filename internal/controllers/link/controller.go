@@ -1,13 +1,12 @@
 package link
 
 import (
+	"context"
 	"fmt"
-	"github.com/gin-gonic/gin"
+
 	"github.com/h-varmazyar/p3o/internal/entities"
-	linkModel "github.com/h-varmazyar/p3o/internal/models/link"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/environments"
-	"github.com/h-varmazyar/p3o/pkg/utils"
 	"go.uber.org/fx"
 )
 
@@ -15,6 +14,7 @@ var (
 	configs *config
 )
 
+//todo: must be deleted
 func init() {
 	configs = new(config)
 	err := environments.LoadEnvironments(configs)
@@ -23,17 +23,25 @@ func init() {
 	}
 }
 
+type linkService interface{
+	All(ctx context.Context, userId uint) ([]entities.Link, error)
+	Activate(ctx context.Context, userId uint, key string) error
+	Deactivate(ctx context.Context, userId uint, key string) error
+	TotalVisits(ctx context.Context, userId uint) (uint, error)
+	Status(ctx context.Context,userId uint, key string) (string, error)
+	Delete(ctx context.Context, userId uint, key string) error
+}
+
 type Controller struct {
-	linkModel linkModel.Model
 	//LinkCache linkModel.Model
 	VisitChan chan workers.VisitRecord
+
+	linkService linkService
 }
 
 type Params struct {
 	fx.In
 
-	LinkModel linkModel.Model
-	LinkCache linkModel.Model
 	VisitChan chan workers.VisitRecord
 }
 
@@ -45,68 +53,10 @@ type Result struct {
 
 func New(p Params) Result {
 	controller := &Controller{
-		linkModel: p.LinkModel,
 		//LinkCache: p.LinkCache,
 		VisitChan: p.VisitChan,
 	}
 	return Result{Controller: controller}
-}
-
-func (c *Controller) Create(ctx *gin.Context) {
-	createLinkReq := new(CreateLinkReq)
-
-	if err := ctx.ShouldBindJSON(&createLinkReq); err != nil {
-		utils.JsonHttpResponse(ctx, nil, ErrInvalidData.AddOriginalError(err), false)
-		return
-	}
-
-	if !isValidLink(createLinkReq.RealUrl) {
-		utils.JsonHttpResponse(ctx, nil, ErrInvalidLink, false)
-		return
-	}
-
-	if createLinkReq.Key == "" {
-		var err error
-		createLinkReq.Key, err = pickKey()
-		if err != nil {
-			utils.JsonHttpResponse(ctx, nil, ErrKeyGenerationFailed, false)
-			return
-		}
-	}
-
-	linkData := &entities.Link{
-		Key:       createLinkReq.Key,
-		RealLink:  createLinkReq.RealUrl,
-		Immediate: true,
-	}
-
-	if err := c.linkModel.Create(ctx, linkData); err != nil {
-		utils.JsonHttpResponse(ctx, nil, err, false)
-		return
-	}
-
-	resp := &CreateLinkResp{
-		Url:       linkData.RealLink,
-		Key:       linkData.Key,
-		Immediate: linkData.Immediate,
-	}
-	utils.JsonHttpResponse(ctx, resp, nil, true)
-}
-
-func (c *Controller) Counts(ctx *gin.Context) {
-	if totalLinkCount, err := c.linkModel.TotalCounts(ctx); err != nil {
-		utils.JsonHttpResponse(ctx, nil, err, false)
-	} else {
-		utils.JsonHttpResponse(ctx, totalLinkCount, nil, true)
-	}
-}
-
-func (c *Controller) Visits(ctx *gin.Context) {
-	if totalVisits, err := c.linkModel.TotalVisits(ctx); err != nil {
-		utils.JsonHttpResponse(ctx, nil, err, false)
-	} else {
-		utils.JsonHttpResponse(ctx, totalVisits, nil, true)
-	}
 }
 
 //func (c *Controller) Fetch(ctx *gin.Context) {

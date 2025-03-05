@@ -52,12 +52,10 @@ func (c *Controller) fetch(ctx *gin.Context) {
 		e := errors.Cast(err)
 		ctx.JSON(e.HttpCode, e.Json(ctx))
 		return
+	} else if link.Immediate {
+		ctx.Redirect(http.StatusPermanentRedirect, link.Url)
+		return
 	} else {
-		if link.Immediate {
-			ctx.Redirect(http.StatusPermanentRedirect, link.Url)
-			return
-		} else {
-			ctx.Redirect(http.StatusTemporaryRedirect, link.Url)
-		}
+		ctx.Redirect(http.StatusTemporaryRedirect, link.Url)
 	}
 }
