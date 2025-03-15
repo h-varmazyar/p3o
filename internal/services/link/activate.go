@@ -4,6 +4,10 @@ import (
 	"context"
 
 	"github.com/h-varmazyar/p3o/internal/entities"
+<<<<<<< HEAD
+=======
+	"github.com/h-varmazyar/p3o/internal/errors"
+>>>>>>> 292128d (feat: add link creation)
 )
 
 func (s Service)Activate(ctx context.Context, userId uint, key string) error {
@@ -13,14 +17,24 @@ func (s Service)Activate(ctx context.Context, userId uint, key string) error {
 	}
 
 	if link.OwnerId != userId {
+<<<<<<< HEAD
 		return ErrLinkOwnerMismatch
+=======
+		return errors.ErrLinkOwnerMismatch
+>>>>>>> 292128d (feat: add link creation)
 	}
 
 	switch link.Status {
 	case entities.LinkStatusActive:
+<<<<<<< HEAD
 		return ErrLinkActivatedBefore
 	case entities.LinkStatusDeactivatedByAdmin:
 		return ErrLinkActivationBanned
+=======
+		return errors.ErrLinkActivatedBefore
+	case entities.LinkStatusDeactivatedByAdmin:
+		return errors.ErrLinkActivationBanned
+>>>>>>> 292128d (feat: add link creation)
 	case entities.LinkStatusDeactivatedByUser:
 		fallthrough
 	default:

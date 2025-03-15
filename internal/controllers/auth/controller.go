@@ -3,7 +3,19 @@ package auth
 import (
 	"crypto/rsa"
 	"github.com/golang-jwt/jwt"
+<<<<<<< HEAD
 	"github.com/h-varmazyar/p3o/internal/models/auth"
+=======
+<<<<<<< HEAD
+	"github.com/h-varmazyar/p3o/internal/entities"
+	"github.com/h-varmazyar/p3o/internal/models/user"
+	"github.com/h-varmazyar/p3o/pkg/environments"
+	"github.com/h-varmazyar/p3o/pkg/utils"
+	log "github.com/sirupsen/logrus"
+=======
+	"github.com/h-varmazyar/p3o/internal/models/auth"
+>>>>>>> 3ffa25e (change project structure to service base)
+>>>>>>> 292128d (feat: add link creation)
 	"go.uber.org/fx"
 )
 
@@ -18,17 +30,36 @@ type Configs struct {
 }
 
 type Controller struct {
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+	userModel user.Model
+=======
+>>>>>>> 292128d (feat: add link creation)
 	cfg         Configs
 	userService user.Service
 
 	userModel auth.Model
+<<<<<<< HEAD
+=======
+>>>>>>> 3ffa25e (change project structure to service base)
+>>>>>>> 292128d (feat: add link creation)
 }
 
 type Params struct {
 	fx.In
 
+<<<<<<< HEAD
 	Cfg       *Configs
 	UserModel auth.Model
+=======
+<<<<<<< HEAD
+	UserModel user.Model
+=======
+	Cfg       *Configs
+	UserModel auth.Model
+>>>>>>> 3ffa25e (change project structure to service base)
+>>>>>>> 292128d (feat: add link creation)
 }
 
 type Result struct {

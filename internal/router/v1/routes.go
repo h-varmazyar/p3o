@@ -5,12 +5,19 @@ import (
 	visit "github.com/h-varmazyar/p3o/api/v1/visits"
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
+	"github.com/h-varmazyar/p3o/internal/controllers/user"
 	"go.uber.org/fx"
 )
 
 type Router struct {
+<<<<<<< HEAD
 	ginRouter        *gin.RouterGroup
 	authController   *auth.Controller
+=======
+	ginRouter      *gin.RouterGroup
+	authController *auth.Controller
+	linkController *link.Controller
+>>>>>>> 292128d (feat: add link creation)
 	linksController  *link.Controller
 	usersController  *user.Controller
 	visitsController *visit.Controller
@@ -65,9 +72,18 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		userRouter := v1Router.Group("/users")
 		userRouter.GET("/info", r.usersController.GetInfo)
 		userRouter.PATCH("/change-password", r.usersController.ChangePassword)
+<<<<<<< HEAD
 	}
 	{
 		visitsController := v1Router.Group("/visits")
 		visitsController.GET("/history", r.visitsController.History)
 	}
 }
+=======
+	}
+	{
+		visitsController := v1Router.Group("/visits")
+		visitsController.GET("/history", r.visitsController.History)
+	}
+}
+>>>>>>> 292128d (feat: add link creation)
