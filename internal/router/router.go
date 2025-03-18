@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/h-varmazyar/p3o/internal/models/link"
+	"github.com/h-varmazyar/p3o/internal/repositories/link"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/utils"

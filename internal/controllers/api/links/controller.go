@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/internal/controllers/panel/v1/link"
-	linkService "github.com/h-varmazyar/p3o/internal/models/link/service"
+	linkService "github.com/h-varmazyar/p3o/internal/repositories/link/service"
 	log "github.com/sirupsen/logrus"
 )
 

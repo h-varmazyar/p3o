@@ -2,7 +2,7 @@ package workers
 
 import (
 	"context"
-	"github.com/h-varmazyar/p3o/internal/models/link"
+	"github.com/h-varmazyar/p3o/internal/repositories/link"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 )

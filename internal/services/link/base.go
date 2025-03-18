@@ -1,37 +1,27 @@
 package link
 
 import (
-	"context"
-
-	"github.com/h-varmazyar/p3o/internal/entities"
-<<<<<<< HEAD
-)
-
-type linkRepository interface{
-	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
-	List(ctx context.Context, userId uint) ([]entities.Link, error)
-	Update(ctx context.Context, link entities.Link) error
-=======
 	"bytes"
+	"context"
+	"github.com/h-varmazyar/p3o/internal/entities"
 	"io"
 	"os"
 	"regexp"
 	"strings"
 )
 
-type linkRepository interface{
+type linkRepository interface {
 	Create(ctx context.Context, link entities.Link) (entities.Link, error)
 	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
 	List(ctx context.Context, userId uint) ([]entities.Link, error)
 	Update(ctx context.Context, link entities.Link) error
 	TotalLinkCount(ctx context.Context, userId uint) (uint, error)
->>>>>>> 292128d (feat: add link creation)
+	Delete(ctx context.Context, key string) error
+	Visits(ctx context.Context, userId uint) (uint, error)
 }
 
-type Service struct{
+type Service struct {
 	linkRepo linkRepository
-<<<<<<< HEAD
-=======
 }
 
 func pickKey() (string, error) {
@@ -90,6 +80,4 @@ func isValidLink(link string) bool {
 	}
 
 	return pattern.MatchString(link)
-
->>>>>>> 292128d (feat: add link creation)
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/h-varmazyar/p3o/api/v1/auth"
 	"github.com/h-varmazyar/p3o/api/v1/links"
 	visit "github.com/h-varmazyar/p3o/api/v1/visits"
-	linkService "github.com/h-varmazyar/p3o/internal/models/link/service"
+	linkService "github.com/h-varmazyar/p3o/internal/repositories/link/service"
 	log "github.com/sirupsen/logrus"
 )
 

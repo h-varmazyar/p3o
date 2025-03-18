@@ -2,7 +2,7 @@ package main
 
 import (
 	gormext "github.com/h-varmazyar/gopack/gorm"
-	"github.com/h-varmazyar/p3o/internal/models/link"
+	"github.com/h-varmazyar/p3o/internal/repositories/link"
 )
 
 type Configs struct {

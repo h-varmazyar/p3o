@@ -2,7 +2,7 @@ package links
 
 import (
 	"github.com/gin-gonic/gin"
-	linkService "github.com/h-varmazyar/p3o/internal/models/link/service"
+	linkService "github.com/h-varmazyar/p3o/internal/repositories/link/service"
 	"github.com/h-varmazyar/p3o/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"net/http"

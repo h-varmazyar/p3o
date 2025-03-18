@@ -6,8 +6,8 @@ import (
 	"github.com/h-varmazyar/p3o/configs"
 	authController "github.com/h-varmazyar/p3o/internal/controllers/auth"
 	linkController "github.com/h-varmazyar/p3o/internal/controllers/link"
-	authModel "github.com/h-varmazyar/p3o/internal/models/auth"
-	linkModel "github.com/h-varmazyar/p3o/internal/models/link"
+	authModel "github.com/h-varmazyar/p3o/internal/repositories/auth"
+	linkModel "github.com/h-varmazyar/p3o/internal/repositories/link"
 	"github.com/h-varmazyar/p3o/internal/router"
 	v1Router "github.com/h-varmazyar/p3o/internal/router/v1"
 	"github.com/h-varmazyar/p3o/internal/workers"
@@ -42,7 +42,7 @@ var generalDependenciesModule = fx.Module(
 )
 
 var modelsDependenciesModule = fx.Module(
-	"models",
+	"repositories",
 	fx.Provide(
 		authModel.New,
 		linkModel.New,

@@ -1,8 +1,13 @@
 package auth
 
-import(
+import (
 	"github.com/gin-gonic/gin"
-	 "time"
+	"github.com/golang-jwt/jwt"
+	"github.com/h-varmazyar/p3o/internal/entities"
+	"github.com/h-varmazyar/p3o/internal/errors"
+	"github.com/h-varmazyar/p3o/pkg/utils"
+	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 type LoginReq struct {
@@ -20,7 +25,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 	loginReq := new(LoginReq)
 
 	if err := ctx.ShouldBindJSON(&loginReq); err != nil {
-		utils.JsonHttpResponse(ctx, nil, ErrLoginFailed.AddOriginalError(err), false)
+		utils.JsonHttpResponse(ctx, nil, errors.ErrLoginFailed.AddOriginalError(err), false)
 		return
 	}
 
@@ -33,13 +38,13 @@ func (c *Controller) Login(ctx *gin.Context) {
 	if found {
 		if err = utils.CompareHashPassword(loginReq.Password, user.HashedPassword); err != nil {
 			log.WithError(err).Error("failed to generage hashed password")
-			utils.JsonHttpResponse(ctx, nil, ErrInvalidUsernamePassword.AddOriginalError(err), false)
+			utils.JsonHttpResponse(ctx, nil, errors.ErrInvalidUsernamePassword.AddOriginalError(err), false)
 			return
 		}
 	} else {
 		user.HashedPassword, err = utils.GenerateHashPassword(loginReq.Password)
 		if err != nil {
-			utils.JsonHttpResponse(ctx, nil, ErrPasswordHashingFailed.AddOriginalError(err), false)
+			utils.JsonHttpResponse(ctx, nil, errors.ErrPasswordHashingFailed.AddOriginalError(err), false)
 			return
 		}
 		err = c.userModel.Create(ctx, user)
@@ -63,7 +68,7 @@ func (c *Controller) Login(ctx *gin.Context) {
 
 	tokenString, err := token.SignedString(signKey)
 	if err != nil {
-		utils.JsonHttpResponse(ctx, nil, ErrLoginFailed.AddOriginalError(err), false)
+		utils.JsonHttpResponse(ctx, nil, errors.ErrLoginFailed.AddOriginalError(err), false)
 		return
 	}
 

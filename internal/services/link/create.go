@@ -9,7 +9,6 @@ import (
 )
 
 func (s Service) Create(ctx context.Context, req domain.LinkCreateReq) (domain.LinkCreateResp, error) {
-	
 	if !isValidLink(req.RealUrl) {
 		return domain.LinkCreateResp{}, errors.ErrInvalidLink
 	}
@@ -30,15 +29,15 @@ func (s Service) Create(ctx context.Context, req domain.LinkCreateReq) (domain.L
 		Status:    entities.LinkStatusActive,
 	}
 
-	link,err := s.linkRepo.Create(ctx, linkData)
+	link, err := s.linkRepo.Create(ctx, linkData)
 	if err != nil {
 		return domain.LinkCreateResp{}, errors.ErrUnexpected.AddOriginalError(err)
 	}
 
 	return domain.LinkCreateResp{
-		Url:        linkData.RealLink,
-		Key:        linkData.Key,
-		Status:		string(link.Status),
-		Immediate:  linkData.Immediate,
+		Url:       linkData.RealLink,
+		Key:       linkData.Key,
+		Status:    string(link.Status),
+		Immediate: linkData.Immediate,
 	}, nil
 }
