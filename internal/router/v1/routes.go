@@ -10,14 +10,8 @@ import (
 )
 
 type Router struct {
-<<<<<<< HEAD
 	ginRouter        *gin.RouterGroup
 	authController   *auth.Controller
-=======
-	ginRouter      *gin.RouterGroup
-	authController *auth.Controller
-	linkController *link.Controller
->>>>>>> 292128d (feat: add link creation)
 	linksController  *link.Controller
 	usersController  *user.Controller
 	visitsController *visit.Controller
@@ -68,22 +62,17 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
 		linkRouter.PATCH("/:key/deactivate", r.linksController.Deactivate)
 	}
-	{
-		userRouter := v1Router.Group("/users")
-		userRouter.GET("/info", r.usersController.GetInfo)
-		userRouter.PATCH("/change-password", r.usersController.ChangePassword)
-<<<<<<< HEAD
-	}
-	{
-		visitsController := v1Router.Group("/visits")
-		visitsController.GET("/history", r.visitsController.History)
-	}
+	//{
+	//	userRouter := v1Router.Group("/users")
+	//	userRouter.GET("/info", r.usersController.GetInfo)
+	//	userRouter.PATCH("/change-password", r.usersController.ChangePassword)
+	//}
+	//{
+	//	visitsController := v1Router.Group("/visits")
+	//	visitsController.GET("/history", r.visitsController.History)
+	//}
+	//{
+	//	visitsController := v1Router.Group("/visits")
+	//	visitsController.GET("/history", r.visitsController.History)
+	//}
 }
-=======
-	}
-	{
-		visitsController := v1Router.Group("/visits")
-		visitsController.GET("/history", r.visitsController.History)
-	}
-}
->>>>>>> 292128d (feat: add link creation)

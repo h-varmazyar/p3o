@@ -28,8 +28,6 @@ type Params struct {
 
 type Result struct {
 	fx.Out
-
-	Model Model
 }
 
 func New(p Params) (Result, error) {
@@ -37,13 +35,11 @@ func New(p Params) (Result, error) {
 		return Result{}, err
 	}
 
-	postgresModel := &Postgres{
-		DB:  p.DB,
-		log: p.Log,
-	}
-	return Result{
-		Model: postgresModel,
-	}, nil
+	//postgresModel := &Postgres{
+	//	DB:  p.DB,
+	//	log: p.Log,
+	//}
+	return Result{}, nil
 }
 
 func migration(_ context.Context, dbInstance *db.DB) error {

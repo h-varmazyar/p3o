@@ -8,5 +8,6 @@ import (
 
 // Link service errors :xyab
 var (
-	ErrUnexpected = errors.NewWithHttp("general.unexpected", 1000, http.StatusBadRequest)
+	ErrUnexpected    = errors.NewWithHttp("general.unexpected", 1000, http.StatusBadRequest)
+	ErrUnimplemented = errors.NewWithHttp("general.unimplemented", 1002, http.StatusBadRequest)
 )

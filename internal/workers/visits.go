@@ -2,10 +2,13 @@ package workers
 
 import (
 	"context"
-	"github.com/h-varmazyar/p3o/internal/repositories/link"
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/fx"
 )
+
+type linkRepository interface {
+	Visit(ctx context.Context, linkId uint) error
+}
 
 type VisitRecord struct {
 	LinkId    uint
@@ -15,7 +18,7 @@ type VisitRecord struct {
 type VisitsWorker struct {
 	log       *log.Logger
 	visitChan chan VisitRecord
-	persistDB link.Model
+	linkRepo  linkRepository
 }
 
 type Params struct {
@@ -23,7 +26,7 @@ type Params struct {
 
 	Log       *log.Logger
 	VisitChan chan VisitRecord
-	PersistDB link.Model
+	LinkRepo  linkRepository
 }
 
 type Result struct {
@@ -36,7 +39,7 @@ func NewVisitWorker(p Params) (*VisitsWorker, error) {
 	worker := &VisitsWorker{
 		log:       p.Log,
 		visitChan: p.VisitChan,
-		persistDB: p.PersistDB,
+		linkRepo:  p.LinkRepo,
 	}
 
 	if err := worker.start(); err != nil {
@@ -53,7 +56,7 @@ func (w VisitsWorker) start() error {
 	w.log.Infof("************** visit worker started")
 	go func() {
 		for record := range w.visitChan {
-			if err := w.persistDB.Visit(context.Background(), record.LinkId); err != nil {
+			if err := w.linkRepo.Visit(context.Background(), record.LinkId); err != nil {
 				w.log.WithError(err).Errorf("failed to increase visit of %v", record.LinkId)
 			}
 		}

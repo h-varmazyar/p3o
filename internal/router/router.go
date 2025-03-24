@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/h-varmazyar/p3o/internal/repositories/link"
+	"github.com/h-varmazyar/p3o/internal/entities"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/utils"
@@ -13,6 +13,10 @@ import (
 	"net"
 	"net/http"
 )
+
+type linkService interface {
+	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
+}
 
 type Router struct {
 	v1Router *v1.Router
@@ -25,7 +29,6 @@ type Params struct {
 	Log       *log.Logger
 	GinEngine *gin.Engine
 	V1Router  *v1.Router
-	LinkModel link.Model
 	VisitChan chan workers.VisitRecord
 }
 
@@ -40,7 +43,7 @@ func New(lc fx.Lifecycle, params Params) Result {
 		v1Router: params.V1Router,
 		log:      params.Log,
 	}
-	handleRedirects(params.GinEngine, params.LinkModel, params.VisitChan)
+	handleRedirects(params.GinEngine, nil, params.VisitChan)
 	router.RegisterRoutes(params.GinEngine)
 
 	srv := &http.Server{
@@ -86,7 +89,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.Engine) {
 	r.v1Router.RegisterRoutes(apiRouter)
 }
 
-func handleRedirects(router *gin.Engine, linkModel link.Model, visitChannel chan workers.VisitRecord) {
+func handleRedirects(router *gin.Engine, linkModel linkService, visitChannel chan workers.VisitRecord) {
 	router.GET("/:key", func(c *gin.Context) {
 		key := c.Param("key")
 		link, err := linkModel.ReturnByKey(c, key)

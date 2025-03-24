@@ -1,6 +1,9 @@
 package errors
 
-import "github.com/h-varmazyar/p3o/pkg/errors"
+import (
+	"github.com/h-varmazyar/p3o/pkg/errors"
+	"net/http"
+)
 
 // Link repository errors :200ab
 var (
@@ -15,4 +18,9 @@ var (
 	ErrLinkCountFetchFailed  = errors.NewWithCode("repositories.link.link_count_fetch_failed", 20053)
 	ErrVisitCountFetchFailed = errors.NewWithCode("repositories.link.visit_count_fetch_failed", 20054)
 	ErrUserHasNoLinks        = errors.NewWithCode("repositories.link.user_has_no_links", 20055)
+)
+
+// user service errors :201ab
+var (
+	ErrUserNotFound = errors.NewWithHttp("repositories.auth.user_not_found", 20100, http.StatusNotFound)
 )

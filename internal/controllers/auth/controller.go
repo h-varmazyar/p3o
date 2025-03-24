@@ -1,33 +1,28 @@
 package auth
 
 import (
-	"crypto/rsa"
-	"github.com/golang-jwt/jwt"
-	"github.com/h-varmazyar/p3o/internal/controllers/user"
-	"github.com/h-varmazyar/p3o/internal/repositories/auth"
+	"context"
+	"github.com/h-varmazyar/p3o/internal/domain"
 	"go.uber.org/fx"
 )
 
-var (
-	signKey   *rsa.PrivateKey
-	verifyKey *rsa.PublicKey
-)
+var ()
 
-type Configs struct {
-	JWTPublicKey  string
-	JWTPrivateKey string
+type userService interface {
+	Login(ctx context.Context, username, password string) (domain.Tokens, error)
+	Logout(ctx context.Context, username string) error
+	Register(ctx context.Context, username, password string) error
+	Verify(ctx context.Context, username, verificationCode string) error
 }
 
 type Controller struct {
-	cfg         Configs
-	userService user.Service
+	userService userService
 }
 
 type Params struct {
 	fx.In
 
-	Cfg       *Configs
-	UserModel auth.Model
+	UserService userService
 }
 
 type Result struct {
@@ -38,24 +33,7 @@ type Result struct {
 
 func New(p Params) Result {
 	controller := &Controller{
-		cfg:       *p.Cfg,
-		userModel: p.UserModel,
-	}
-	if err := controller.generateKeys(); err != nil {
-		panic(err)
+		userService: p.UserService,
 	}
 	return Result{Controller: controller}
-}
-
-func (c *Controller) generateKeys() error {
-	var err error
-	verifyKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(c.cfg.JWTPublicKey))
-	if err != nil {
-		return err
-	}
-	signKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(c.cfg.JWTPrivateKey))
-	if err != nil {
-		return err
-	}
-	return nil
 }
