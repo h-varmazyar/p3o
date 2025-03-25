@@ -45,11 +45,12 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          debug: true
           script: |
-            set -e  # Stop script on any error
+#            set -e  # Stop script on any error
 
             # Define the project directory
-            PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/project-name"
+            PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/p3o"
 
             # Ensure the directory exists
             mkdir -p $PROJECT_DIR
@@ -78,9 +79,10 @@ jobs:
             sudo docker pull docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
 
             # Restart the application with Docker Compose
-            sudo VERSION=${VERSION} docker-compose -f ./deploy/compose/production/compose.yml down
-            sudo VERSION=${VERSION} docker-compose -f ./deploy/compose/production/compose.yml up -d
+            sudo docker compose -f ./deploy/compose/production/compose.yml down
+            sudo docker compose -f ./deploy/compose/production/compose.yml up -d
 
             # Clean up old Docker images
             sudo docker image prune -af
+            
             
