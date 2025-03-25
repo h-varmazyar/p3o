@@ -47,7 +47,7 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           debug: true
           script: |
-#            set -e  # Stop script on any error
+            # set -e  # Stop script on any error
 
             # Define the project directory
             PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/p3o"
