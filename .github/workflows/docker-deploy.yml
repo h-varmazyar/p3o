@@ -45,27 +45,42 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
-          debug: true
           script: |
-            # Pull the latest image
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
-            
-            # Create or update .env file if needed
-            # echo "TAG=${{ steps.tag.outputs.version }}" > .env
-            
-            # Navigate to the directory with docker-compose file
-            mkdir ./projects/p3o
-            cd ./projects/p3o
-            
-            # Update the docker-compose file to use the new image tag
-            # This assumes your service is named 'app' in the compose file
-            # You may need to adjust this command based on your compose file structure
-            sed -i 's|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:.*|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}|g' ./deploy/compose/production/compose.yml
-            
-            # Deploy with docker-compose
-            docker-compose -f ./deploy/compose/production/compose.yml down
-            docker-compose -f ./deploy/compose/production/compose.yml up -d
-            
-            # Clean up old images (optional)
-            docker image prune -af
+            set -e  # Stop script on any error
+
+            # Define the project directory
+            PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/project-name"
+
+            # Ensure the directory exists
+            mkdir -p $PROJECT_DIR
+
+            # Navigate to the project directory
+            cd $PROJECT_DIR
+
+            # Check if the repo exists; if not, clone it
+            if [ ! -d ".git" ]; then
+              git clone --depth=1 https://github.com/h-varmazyar/p3o.git .
+            fi
+
+            # Fetch the latest changes for the tag that triggered the action
+            git fetch --tags
+
+            # Checkout the tag that triggered the workflow
+            git checkout tags/${{ steps.tag.outputs.version }}
+
+            # Pull the latest Docker image
+            sudo docker pull docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
+
+            # Update docker-compose.yml with the new image tag
+            sudo sed -i 's|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:.*|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}|g' ./deploy/compose/production/compose.yml
+
+            # Ensure Docker Compose is installed
+            sudo apt-get update && sudo apt-get install -y docker-compose
+
+            # Restart the application with Docker Compose
+            sudo docker-compose -f ./deploy/compose/production/compose.yml down
+            sudo docker-compose -f ./deploy/compose/production/compose.yml up -d
+
+            # Clean up old Docker images
+            sudo docker image prune -af
 
