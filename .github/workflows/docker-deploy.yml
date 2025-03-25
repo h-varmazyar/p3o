@@ -67,20 +67,20 @@ jobs:
 
             # Checkout the tag that triggered the workflow
             git checkout tags/${{ steps.tag.outputs.version }}
+            
+            # Export VERSION as an environment variable
+            export VERSION=${{ steps.tag.outputs.version }}
+            
+            # Create or update .env file with VERSION
+            echo "VERSION=${VERSION}" > .env
 
             # Pull the latest Docker image
             sudo docker pull docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
 
-            # Update docker-compose.yml with the new image tag
-            sudo sed -i 's|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:.*|image: docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}|g' ./deploy/compose/production/compose.yml
-
-            # Ensure Docker Compose is installed
-            sudo apt-get update && sudo apt-get install -y docker-compose
-
             # Restart the application with Docker Compose
-            sudo docker-compose -f ./deploy/compose/production/compose.yml down
-            sudo docker-compose -f ./deploy/compose/production/compose.yml up -d
+            sudo VERSION=${VERSION} docker-compose -f ./deploy/compose/production/compose.yml down
+            sudo VERSION=${VERSION} docker-compose -f ./deploy/compose/production/compose.yml up -d
 
             # Clean up old Docker images
             sudo docker image prune -af
-
+            
