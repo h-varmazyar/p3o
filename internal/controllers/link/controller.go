@@ -5,7 +5,6 @@ import (
 	"github.com/h-varmazyar/p3o/internal/domain"
 	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/h-varmazyar/p3o/internal/workers"
-	"go.uber.org/fx"
 )
 
 type linkService interface {
@@ -24,24 +23,11 @@ type Controller struct {
 	linkService linkService
 }
 
-type Params struct {
-	fx.In
-
-	VisitChan chan workers.VisitRecord
-}
-
-type Result struct {
-	fx.Out
-
-	Controller *Controller
-}
-
-func New(p Params) Result {
-	controller := &Controller{
-		//LinkCache: p.LinkCache,
-		VisitChan: p.VisitChan,
+func New(linkSrv linkService, visitChan chan workers.VisitRecord) Controller {
+	return Controller{
+		VisitChan:   visitChan,
+		linkService: linkSrv,
 	}
-	return Result{Controller: controller}
 }
 
 //func (c *Controller) Fetch(ctx *gin.Context) {

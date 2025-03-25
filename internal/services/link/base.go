@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/h-varmazyar/p3o/internal/entities"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"regexp"
@@ -15,13 +16,21 @@ type linkRepository interface {
 	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
 	List(ctx context.Context, userId uint) ([]entities.Link, error)
 	Update(ctx context.Context, link entities.Link) error
-	TotalLinkCount(ctx context.Context, userId uint) (uint, error)
+	TotalLinkCount(ctx context.Context, userId uint) (int64, error)
 	Delete(ctx context.Context, key string) error
-	Visits(ctx context.Context, userId uint) (uint, error)
+	Visits(ctx context.Context, userId uint) (int64, error)
 }
 
 type Service struct {
+	log      *log.Logger
 	linkRepo linkRepository
+}
+
+func New(log *log.Logger, linkRepo linkRepository) Service {
+	return Service{
+		log:      log,
+		linkRepo: linkRepo,
+	}
 }
 
 func pickKey() (string, error) {

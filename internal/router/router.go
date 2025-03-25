@@ -4,73 +4,55 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/h-varmazyar/p3o/internal/entities"
+	"github.com/h-varmazyar/p3o/internal/domain"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
-	"go.uber.org/fx"
 	"net"
 	"net/http"
 )
 
 type linkService interface {
-	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
+	ReturnByKey(ctx context.Context, key string) (domain.Link, error)
 }
 
 type Router struct {
-	v1Router *v1.Router
-	log      *log.Logger
-}
-
-type Params struct {
-	fx.In
-
-	Log       *log.Logger
-	GinEngine *gin.Engine
-	V1Router  *v1.Router
+	log       *log.Logger
+	v1Router  v1.Router
+	linkSrv   linkService
 	VisitChan chan workers.VisitRecord
 }
 
-type Result struct {
-	fx.Out
-
-	Router *Router
+func New(log *log.Logger, v1Router v1.Router, linkSrv linkService, visitChan chan workers.VisitRecord) Router {
+	return Router{
+		v1Router:  v1Router,
+		linkSrv:   linkSrv,
+		log:       log,
+		VisitChan: visitChan,
+	}
 }
 
-func New(lc fx.Lifecycle, params Params) Result {
-	router := &Router{
-		v1Router: params.V1Router,
-		log:      params.Log,
-	}
-	handleRedirects(params.GinEngine, nil, params.VisitChan)
-	router.RegisterRoutes(params.GinEngine)
+func (r Router) StartServing(ginEngine *gin.Engine, address string) error {
+	handleRedirects(ginEngine, r.linkSrv, r.VisitChan)
+	r.RegisterRoutes(ginEngine)
 
 	srv := &http.Server{
-		Addr:    ":8765",
-		Handler: params.GinEngine,
+		Addr:    address,
+		Handler: ginEngine,
 	}
 
-	lc.Append(fx.Hook{
-		OnStart: func(ctx context.Context) error {
-			ln, err := net.Listen("tcp", srv.Addr)
-			if err != nil {
-				fmt.Println("[My Demo] Failed to start HTTP Server at", srv.Addr)
-				return err
-			}
-			go srv.Serve(ln)
-			fmt.Println("[My Demo]Succeeded to start HTTP Server at", srv.Addr)
-			return nil
-		},
-		OnStop: func(ctx context.Context) error {
-			return srv.Shutdown(ctx)
-		},
-	})
+	ln, err := net.Listen("tcp", srv.Addr)
+	if err != nil {
+		fmt.Println("[My Demo] Failed to start HTTP Server at", srv.Addr)
+		return err
+	}
+	go srv.Serve(ln)
 
-	return Result{Router: router}
+	return err
 }
 
-func (r *Router) RegisterRoutes(ginRouter *gin.Engine) {
+func (r Router) RegisterRoutes(ginRouter *gin.Engine) {
 	r.log.Infof("********** registering routes")
 	ginRouter.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -89,10 +71,10 @@ func (r *Router) RegisterRoutes(ginRouter *gin.Engine) {
 	r.v1Router.RegisterRoutes(apiRouter)
 }
 
-func handleRedirects(router *gin.Engine, linkModel linkService, visitChannel chan workers.VisitRecord) {
+func handleRedirects(router *gin.Engine, linkSrv linkService, visitChannel chan workers.VisitRecord) {
 	router.GET("/:key", func(c *gin.Context) {
 		key := c.Param("key")
-		link, err := linkModel.ReturnByKey(c, key)
+		link, err := linkSrv.ReturnByKey(c, key)
 		if err != nil {
 			utils.JsonHttpResponse(c, nil, err, false)
 			return
@@ -101,7 +83,7 @@ func handleRedirects(router *gin.Engine, linkModel linkService, visitChannel cha
 			LinkId:    link.ID,
 			IpAddress: getIpAddress(c),
 		}
-		c.Redirect(http.StatusTemporaryRedirect, link.RealLink)
+		c.Redirect(http.StatusTemporaryRedirect, link.Url)
 	})
 }
 

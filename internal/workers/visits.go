@@ -26,7 +26,7 @@ type Params struct {
 
 	Log       *log.Logger
 	VisitChan chan VisitRecord
-	LinkRepo  linkRepository
+	//LinkRepo  linkRepository
 }
 
 type Result struct {
@@ -39,7 +39,7 @@ func NewVisitWorker(p Params) (*VisitsWorker, error) {
 	worker := &VisitsWorker{
 		log:       p.Log,
 		visitChan: p.VisitChan,
-		linkRepo:  p.LinkRepo,
+		//linkRepo:  p.LinkRepo,
 	}
 
 	if err := worker.start(); err != nil {

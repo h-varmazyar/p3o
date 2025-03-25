@@ -1,4 +1,4 @@
-package auth
+package user
 
 import "github.com/h-varmazyar/p3o/pkg/errors"
 

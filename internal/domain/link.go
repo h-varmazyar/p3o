@@ -1,14 +1,20 @@
 package domain
 
 type LinkCreateReq struct {
-	UserId uint    `json:"user_id"`
+	UserId  uint   `json:"user_id"`
 	Key     string `json:"key"`
 	RealUrl string `json:"real_url"`
 }
 
 type LinkCreateResp struct {
-	Key         string `json:"key"`
-	Url    		string `json:"url"`
-	Status 		string `json:"status"`
-	Immediate   bool   `json:"immediate"`
+	Key       string `json:"key"`
+	Url       string `json:"url"`
+	Status    string `json:"status"`
+	Immediate bool   `json:"immediate"`
+}
+
+type Link struct {
+	ID  uint   `json:"-"`
+	Key string `json:"key"`
+	Url string `json:"url"`
 }

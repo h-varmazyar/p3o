@@ -45,7 +45,7 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 
 	token := jwt.NewWithClaims(jwt.SigningMethodRS512, claims)
 
-	tokenString, err := token.SignedString(s.signKey)
+	tokenString, err := token.SignedString(signedKey)
 	if err != nil {
 		return domain.Tokens{}, errors.ErrLoginFailed.AddOriginalError(err)
 	}

@@ -6,39 +6,21 @@ import (
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
 	"github.com/h-varmazyar/p3o/internal/controllers/user"
-	"go.uber.org/fx"
 )
 
 type Router struct {
 	ginRouter        *gin.RouterGroup
-	authController   *auth.Controller
-	linksController  *link.Controller
-	usersController  *user.Controller
-	visitsController *visit.Controller
+	authController   auth.Controller
+	linksController  link.Controller
+	usersController  user.Controller
+	visitsController visit.Controller
 }
 
-type Params struct {
-	fx.In
-
-	AuthController   *auth.Controller
-	LinksController  *link.Controller
-	usersController  *user.Controller
-	visitsController *visit.Controller
-}
-
-type Result struct {
-	fx.Out
-
-	Router *Router
-}
-
-func New(params Params) Result {
-	router := &Router{
-		authController:  params.AuthController,
-		linksController: params.LinksController,
+func New(authController auth.Controller, linkController link.Controller) Router {
+	return Router{
+		authController:  authController,
+		linksController: linkController,
 	}
-
-	return Result{Router: router}
 }
 
 func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {

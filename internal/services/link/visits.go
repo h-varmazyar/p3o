@@ -8,5 +8,5 @@ func (s Service) TotalVisits(ctx context.Context, userId uint) (uint, error) {
 		return 0, err
 	}
 
-	return visits, nil
+	return uint(visits), nil
 }
