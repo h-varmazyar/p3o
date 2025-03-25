@@ -6,7 +6,7 @@ networks:
 
 services:
   postgres:
-    container_name: postgres
+    container_name: docker.iranserver.com/postgres
     image: postgres:17
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
@@ -20,7 +20,7 @@ services:
 
   redis:
     container_name: redis
-    image: bitnami/redis:latest
+    image: docker.iranserver.com/bitnami/redis:latest
     command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - ALLOW_EMPTY_PASSWORD=no
@@ -34,7 +34,7 @@ services:
 
   p3o:
     container_name: p3o
-    image: gatec/p3o:${VERSION}
+    image: docker.iranserver.com/gatec/p3o:${VERSION}
     volumes:
       - /srv/configs/p3o/app.yaml:/app/configs/config.yaml
     networks:

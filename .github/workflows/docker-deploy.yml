@@ -45,6 +45,7 @@ jobs:
           username: ${{ secrets.SERVER_USERNAME }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SERVER_PORT }}
+          debug: true
           script: |
             # Pull the latest image
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
