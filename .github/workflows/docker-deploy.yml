@@ -53,7 +53,8 @@ jobs:
             # echo "TAG=${{ steps.tag.outputs.version }}" > .env
             
             # Navigate to the directory with docker-compose file
-            cd /path/to/your/project
+            mkdir ./projects/p3o
+            cd ./projects/p3o
             
             # Update the docker-compose file to use the new image tag
             # This assumes your service is named 'app' in the compose file
