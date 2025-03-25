@@ -6,8 +6,8 @@ networks:
 
 services:
   postgres:
-    container_name: docker.iranserver.com/postgres
-    image: postgres:17
+    container_name: postgres
+    image: docker.iranserver.com/postgres:17
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     volumes:
