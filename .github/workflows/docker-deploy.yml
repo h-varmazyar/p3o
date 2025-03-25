@@ -1,88 +1,49 @@
-name: Build and Deploy Docker
+name: Deploy P3O on New Tag
 
 on:
   push:
     tags:
-      - 'v*' # This will trigger the workflow only when a tag starting with 'v' is pushed
+      - 'v*'
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
+    env:
+      # Environment variables for Docker and deployment
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      SERVER_HOST: ${{ secrets.SERVER_HOST }}
+      SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
+      DOCKER_IMAGE_TAG: ${{ github.ref_name }}
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Extract tag name
-        id: tag
-        run: echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
-      - name: Login to Docker Hub
+      - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          file: ./build/docker/Dockerfile
-          push: true
-          tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/p3o:latest
-            ${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/p3o:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/p3o:buildcache,mode=max
+      - name: Build Docker image
+        run: |
+          docker build -f ./build/docker/Dockerfile -t ${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ github.ref_name }} .
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USERNAME }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          debug: true
-          script: |
-            # set -e  # Stop script on any error
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ github.ref_name }}
 
-            # Define the project directory
-            PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/p3o"
+      - name: Copy Docker Compose file to server
+        run: |
+          scp -o StrictHostKeyChecking=no ./deploy/compose/production/compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/p3o
 
-            # Ensure the directory exists
-            mkdir -p $PROJECT_DIR
-
-            # Navigate to the project directory
-            cd $PROJECT_DIR
-
-            # Check if the repo exists; if not, clone it
-            if [ ! -d ".git" ]; then
-              git clone --depth=1 https://github.com/h-varmazyar/p3o.git .
-            fi
-
-            # Fetch the latest changes for the tag that triggered the action
-            git fetch --tags
-
-            # Checkout the tag that triggered the workflow
-            git checkout tags/${{ steps.tag.outputs.version }}
-            
-            # Export VERSION as an environment variable
-            export VERSION=${{ steps.tag.outputs.version }}
-            
-            # Create or update .env file with VERSION
-            echo "VERSION=${VERSION}" > .env
-
-            # Pull the latest Docker image
-            sudo docker pull docker.iranserver.com/${{ secrets.DOCKERHUB_USERNAME }}/p3o:${{ steps.tag.outputs.version }}
-
-            # Restart the application with Docker Compose
-            sudo docker compose -f ./deploy/compose/production/compose.yml down
-            sudo docker compose -f ./deploy/compose/production/compose.yml up -d
-
-            # Clean up old Docker images
-            sudo docker image prune -af
-            
-            
+      - name: Deploy to external server via Docker Compose
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            cd /p3o
+            docker-compose -f compose.yml up -d
+          EOF
