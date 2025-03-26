@@ -8,8 +8,8 @@ services:
   postgres:
     container_name: postgres
     image: docker.iranserver.com/postgres:17
-    environment:
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - /srv/configs/p3o/.env
     volumes:
       - postgres_p3o_data:/var/lib/postgresql/data
     networks:
@@ -24,6 +24,8 @@ services:
     command: redis-server --requirepass ${REDIS_PASSWORD}
     environment:
       - ALLOW_EMPTY_PASSWORD=no
+    env_file:
+      - /srv/configs/p3o/.env
     volumes:
       - redis_p3o_data:/var/lib/redis
     networks:
@@ -35,10 +37,12 @@ services:
   p3o:
     container_name: p3o
     image: docker.iranserver.com/gatec/p3o:${VERSION}
-    volumes:
-      - /srv/configs/p3o/app.yaml:/app/configs/config.yaml
+    env_file:
+      - /srv/configs/p3o/.env
     networks:
       - p3o
+    ports:
+      - "7765:7765"
     depends_on:
       - postgres
     restart: always

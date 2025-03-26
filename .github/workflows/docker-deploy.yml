@@ -52,5 +52,6 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
             cd /home/${{ secrets.SERVER_USERNAME }}/p3o
+            docker-compose -f compose.yml down
             docker-compose -f compose.yml up -d
           EOF
