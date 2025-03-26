@@ -14,6 +14,7 @@ import (
 func (s Service) Login(ctx context.Context, username, password string) (domain.Tokens, error) {
 	user, found, err := s.fetchUser(ctx, username)
 	if err != nil {
+		s.log.WithError(err)
 		return domain.Tokens{}, err
 	}
 
@@ -25,10 +26,12 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 	} else {
 		user.HashedPassword, err = utils.GenerateHashPassword(password)
 		if err != nil {
+			s.log.WithError(err).Error(errors.ErrPasswordHashingFailed.Code)
 			return domain.Tokens{}, errors.ErrPasswordHashingFailed.AddOriginalError(err)
 		}
 		err = s.userRepo.Create(ctx, user)
 		if err != nil {
+			s.log.WithError(err)
 			return domain.Tokens{}, err
 		}
 	}
@@ -47,6 +50,7 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 
 	tokenString, err := token.SignedString(signedKey)
 	if err != nil {
+		s.log.WithError(err).Error(errors.ErrLoginFailed.Code)
 		return domain.Tokens{}, errors.ErrLoginFailed.AddOriginalError(err)
 	}
 
