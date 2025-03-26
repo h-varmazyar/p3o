@@ -53,6 +53,6 @@ jobs:
       - name: Deploy to external server via Docker Compose
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd /p3o
+            cd $PROJECT_DIR
             docker-compose -f compose.yml up -d
           EOF
