@@ -9,7 +9,7 @@ services:
     container_name: postgres
     image: docker.iranserver.com/postgres:17
     env_file:
-      - /srv/configs/p3o/.env
+      - ./.env
     volumes:
       - postgres_p3o_data:/var/lib/postgresql/data
     networks:
@@ -25,7 +25,7 @@ services:
     environment:
       - ALLOW_EMPTY_PASSWORD=no
     env_file:
-      - /srv/configs/p3o/.env
+      - ./.env
     volumes:
       - redis_p3o_data:/var/lib/redis
     networks:
@@ -38,7 +38,7 @@ services:
     container_name: p3o
     image: docker.iranserver.com/gatec/p3o:${VERSION}
     env_file:
-      - /srv/configs/p3o/.env
+      - ./.env
     networks:
       - p3o
     ports:
