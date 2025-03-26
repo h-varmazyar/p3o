@@ -46,13 +46,11 @@ jobs:
 
       - name: Copy Docker Compose file to server
         run: |
-          PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/p3o"
-          
-          scp -o StrictHostKeyChecking=no ./deploy/compose/production/compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:$PROJECT_DIR
+          scp -o StrictHostKeyChecking=no ./deploy/compose/production/compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/home/${{ secrets.SERVER_USERNAME }}/p3o
 
       - name: Deploy to external server via Docker Compose
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd $PROJECT_DIR
+            cd /home/${{ secrets.SERVER_USERNAME }}/p3o
             docker-compose -f compose.yml up -d
           EOF
