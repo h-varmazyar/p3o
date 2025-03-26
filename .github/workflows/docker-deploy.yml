@@ -9,13 +9,12 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      # Environment variables for Docker and deployment
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       SERVER_HOST: ${{ secrets.SERVER_HOST }}
       SERVER_USERNAME: ${{ secrets.SERVER_USERNAME }}
       DOCKER_IMAGE_TAG: ${{ github.ref_name }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}  # Add the secret SSH key
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
     steps:
       - name: Checkout repository
@@ -47,7 +46,9 @@ jobs:
 
       - name: Copy Docker Compose file to server
         run: |
-          scp -o StrictHostKeyChecking=no ./deploy/compose/production/compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:/p3o
+          PROJECT_DIR="/home/${{ secrets.SERVER_USERNAME }}/p3o"
+          
+          scp -o StrictHostKeyChecking=no ./deploy/compose/production/compose.yml ${{ secrets.SERVER_USERNAME }}@${{ secrets.SERVER_HOST }}:$PROJECT_DIR
 
       - name: Deploy to external server via Docker Compose
         run: |
