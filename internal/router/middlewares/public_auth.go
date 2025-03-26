@@ -3,6 +3,7 @@ package middlewares
 import (
 	"github.com/h-varmazyar/p3o/internal/errors"
 	"github.com/h-varmazyar/p3o/pkg/jwt"
+	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"strconv"
 	"strings"
@@ -21,11 +22,12 @@ func NewPublicAuthMiddleware(logger *log.Logger) PublicAuthMiddleware {
 }
 
 func (p PublicAuthMiddleware) respondUnauthorized(c *gin.Context) {
-	_ = c.Error(errors.ErrUnauthorized)
+	utils.JsonHttpResponse(c, nil, errors.ErrUnauthorized, false)
 	c.Abort()
 }
 
 func (p PublicAuthMiddleware) Handle(c *gin.Context) {
+	p.logger.Printf("Handle %s", c.Request.RequestURI)
 	authToken := c.GetHeader("Authorization")
 
 	if authToken == "" {
