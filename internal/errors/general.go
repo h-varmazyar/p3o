@@ -10,4 +10,5 @@ import (
 var (
 	ErrUnexpected    = errors.NewWithHttp("general.unexpected", 1000, http.StatusBadRequest)
 	ErrUnimplemented = errors.NewWithHttp("general.unimplemented", 1002, http.StatusBadRequest)
+	ErrUnauthorized  = errors.NewWithHttp("general.unauthorized", 1003, http.StatusUnauthorized)
 )

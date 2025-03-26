@@ -3,13 +3,12 @@ package link
 import (
 	"context"
 	"github.com/h-varmazyar/p3o/internal/domain"
-	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/h-varmazyar/p3o/internal/workers"
 )
 
 type linkService interface {
 	Create(ctx context.Context, link domain.LinkCreateReq) (domain.LinkCreateResp, error)
-	All(ctx context.Context, userId uint) ([]entities.Link, error)
+	All(ctx context.Context, userId uint) (domain.All, error)
 	Activate(ctx context.Context, userId uint, key string) error
 	Deactivate(ctx context.Context, userId uint, key string) error
 	TotalVisits(ctx context.Context, userId uint) (uint, error)

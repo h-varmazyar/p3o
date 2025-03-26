@@ -1,5 +1,7 @@
 package domain
 
+import "time"
+
 type LinkCreateReq struct {
 	UserId  uint   `json:"user_id"`
 	Key     string `json:"key"`
@@ -14,7 +16,13 @@ type LinkCreateResp struct {
 }
 
 type Link struct {
-	ID  uint   `json:"-"`
-	Key string `json:"key"`
-	Url string `json:"url"`
+	ID        uint      `json:"-"`
+	ShortLink string    `json:"short_link"`
+	Url       string    `json:"url"`
+	Visits    uint      `json:"visits"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type All struct {
+	Links []Link `json:"links"`
 }

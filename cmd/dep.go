@@ -9,6 +9,7 @@ import (
 	linkRepository "github.com/h-varmazyar/p3o/internal/repositories/link"
 	userRepository "github.com/h-varmazyar/p3o/internal/repositories/user"
 	"github.com/h-varmazyar/p3o/internal/router"
+	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	linkService "github.com/h-varmazyar/p3o/internal/services/link"
 	userService "github.com/h-varmazyar/p3o/internal/services/user"
@@ -41,8 +42,11 @@ type dependencies struct {
 		LinkController linkController.Controller
 	}
 	Routers struct {
-		Router router.Router
-		V1     v1.Router
+		Router      router.Router
+		V1          v1.Router
+		Middlewares struct {
+			PublicAuth middlewares.PublicAuthMiddleware
+		}
 	}
 }
 
@@ -94,7 +98,8 @@ var serviceDependencies = func(dep *dependencies) (err error) {
 }
 
 var routersDependencies = func(dep *dependencies) (err error) {
-	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController)
+	dep.Routers.Middlewares.PublicAuth = middlewares.NewPublicAuthMiddleware(dep.Log)
+	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Routers.Middlewares.PublicAuth)
 	dep.Routers.Router = router.New(dep.Log, dep.Routers.V1, dep.Services.Link, dep.VisitChan)
 	return
 }

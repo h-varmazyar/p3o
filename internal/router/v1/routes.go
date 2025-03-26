@@ -6,20 +6,23 @@ import (
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
 	"github.com/h-varmazyar/p3o/internal/controllers/user"
+	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 )
 
 type Router struct {
-	ginRouter        *gin.RouterGroup
-	authController   auth.Controller
-	linksController  link.Controller
-	usersController  user.Controller
-	visitsController visit.Controller
+	ginRouter            *gin.RouterGroup
+	authController       auth.Controller
+	linksController      link.Controller
+	usersController      user.Controller
+	visitsController     visit.Controller
+	publicAuthMiddleware middlewares.PublicAuthMiddleware
 }
 
-func New(authController auth.Controller, linkController link.Controller) Router {
+func New(authController auth.Controller, linkController link.Controller, publicAuthMiddleware middlewares.PublicAuthMiddleware) Router {
 	return Router{
-		authController:  authController,
-		linksController: linkController,
+		authController:       authController,
+		linksController:      linkController,
+		publicAuthMiddleware: publicAuthMiddleware,
 	}
 }
 
@@ -34,7 +37,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		authRouter.DELETE("/register", r.authController.Register)
 	}
 	{
-		linkRouter := v1Router.Group("/links")
+		linkRouter := v1Router.Group("/links").Use(r.publicAuthMiddleware.Handle)
 		linkRouter.POST("", r.linksController.Create)
 		linkRouter.GET("", r.linksController.All)
 		linkRouter.GET("/counts", r.linksController.Counts)

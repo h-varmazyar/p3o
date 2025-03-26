@@ -13,7 +13,7 @@ const tableName = "links"
 
 const (
 	ColumnId         = "id"
-	ColumnUserId     = "user_id"
+	ColumnOwnerId    = "owner_id"
 	ColumnTotalVisit = "total_visit"
 	ColumnKey        = "key"
 )
@@ -40,7 +40,7 @@ func (r Repository) Create(ctx context.Context, link entities.Link) (entities.Li
 
 func (r Repository) TotalLinkCount(ctx context.Context, userId uint) (int64, error) {
 	count := int64(0)
-	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnUserId), userId).Count(&count).Error; err != nil {
+	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Count(&count).Error; err != nil {
 		return 0, errors.ErrLinkCountFetchFailed.AddOriginalError(err)
 	}
 	return count, nil
@@ -48,7 +48,7 @@ func (r Repository) TotalLinkCount(ctx context.Context, userId uint) (int64, err
 
 func (r Repository) Visits(ctx context.Context, userId uint) (int64, error) {
 	sum := int64(0)
-	if err := r.DB.WithContext(ctx).Table(tableName).Select(repositories.Sum(ColumnTotalVisit)).Where(repositories.Where(ColumnUserId), userId).Row().Scan(&sum); err != nil {
+	if err := r.DB.WithContext(ctx).Table(tableName).Select(repositories.Sum(ColumnTotalVisit)).Where(repositories.Where(ColumnOwnerId), userId).Row().Scan(&sum); err != nil {
 		return 0, errors.ErrVisitCountFetchFailed.AddOriginalError(err)
 	}
 	return sum, nil
@@ -66,7 +66,7 @@ func (r Repository) ReturnByKey(ctx context.Context, key string) (entities.Link,
 func (r Repository) List(ctx context.Context, userId uint) ([]entities.Link, error) {
 	links := make([]entities.Link, 0)
 
-	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnUserId), userId).Find(&links).Error; err != nil {
+	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Find(&links).Error; err != nil {
 		return nil, errors.ErrUserHasNoLinks.AddOriginalError(err)
 	}
 
