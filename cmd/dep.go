@@ -14,6 +14,7 @@ import (
 	linkService "github.com/h-varmazyar/p3o/internal/services/link"
 	userService "github.com/h-varmazyar/p3o/internal/services/user"
 	"github.com/h-varmazyar/p3o/internal/workers"
+	"github.com/h-varmazyar/p3o/pkg/logger"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -53,7 +54,7 @@ type dependencies struct {
 var generalDependencies = func(dep *dependencies) (err error) {
 	dep.ctx = context.Background()
 	dep.StopSignal = make(chan os.Signal, 1)
-	dep.Log = log.New()
+	dep.Log = logger.NewLogger()
 	dep.Cfg, err = configs.New()
 	if err != nil {
 		return
@@ -128,6 +129,8 @@ func InjectDependencies() (dep dependencies, err error) {
 	if err = routersDependencies(&dep); err != nil {
 		return
 	}
+
+	dep.Log.Info("Injecting dependencies")
 
 	return
 }

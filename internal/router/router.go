@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/internal/domain"
+	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/utils"
@@ -35,6 +36,8 @@ func New(log *log.Logger, v1Router v1.Router, linkSrv linkService, visitChan cha
 
 func (r Router) StartServing(ginEngine *gin.Engine, address string) error {
 	handleRedirects(ginEngine, r.linkSrv, r.VisitChan)
+
+	ginEngine.Use(middlewares.CORSMiddleware())
 	r.RegisterRoutes(ginEngine)
 
 	srv := &http.Server{

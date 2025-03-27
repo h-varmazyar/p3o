@@ -27,7 +27,6 @@ func (p PublicAuthMiddleware) respondUnauthorized(c *gin.Context) {
 }
 
 func (p PublicAuthMiddleware) Handle(c *gin.Context) {
-	p.logger.Printf("Handle %s", c.Request.RequestURI)
 	authToken := c.GetHeader("Authorization")
 
 	if authToken == "" {
