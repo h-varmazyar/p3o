@@ -2,13 +2,23 @@ package link
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/h-varmazyar/p3o/pkg/utils"
 )
 
+type visitsResp struct {
+	Visits      uint   `json:"visits"`
+	Growth      string `json:"growth"`
+	GrowthTrend string `json:"growth_trend"`
+}
+
 func (c Controller) Visits(ctx *gin.Context) {
-	if totalVisits, err := c.linkService.TotalVisits(ctx, utils.FetchUserId(ctx)); err != nil {
-		utils.JsonHttpResponse(ctx, nil, err, false)
-	} else {
-		utils.JsonHttpResponse(ctx, map[string]interface{}{"visits": totalVisits}, nil, true)
-	}
+	//if totalVisits, err := c.linkService.TotalVisits(ctx, utils.FetchUserId(ctx)); err != nil {
+	//	utils.JsonHttpResponse(ctx, nil, err, false)
+	//} else {
+	//	resp := visitsResp{
+	//		Visits:      totalVisits,
+	//		Growth:      fmt.Sprintf("%.1f%", 43.441),
+	//		GrowthTrend: "+",
+	//	}
+	//	utils.JsonHttpResponse(ctx, resp, nil, true)
+	//}
 }

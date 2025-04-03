@@ -18,7 +18,6 @@ type linkRepository interface {
 	Update(ctx context.Context, link entities.Link) error
 	TotalLinkCount(ctx context.Context, userId uint) (int64, error)
 	Delete(ctx context.Context, key string) error
-	Visits(ctx context.Context, userId uint) (int64, error)
 }
 
 type Service struct {

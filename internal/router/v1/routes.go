@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	visit "github.com/h-varmazyar/p3o/api/v1/visits"
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
+	"github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
 	"github.com/h-varmazyar/p3o/internal/controllers/user"
 	"github.com/h-varmazyar/p3o/internal/router/middlewares"
@@ -12,16 +13,18 @@ import (
 type Router struct {
 	ginRouter            *gin.RouterGroup
 	authController       auth.Controller
+	dashboardController  dashboard.Controller
 	linksController      link.Controller
 	usersController      user.Controller
 	visitsController     visit.Controller
 	publicAuthMiddleware middlewares.PublicAuthMiddleware
 }
 
-func New(authController auth.Controller, linkController link.Controller, publicAuthMiddleware middlewares.PublicAuthMiddleware) Router {
+func New(authController auth.Controller, linkController link.Controller, dashboardController dashboard.Controller, publicAuthMiddleware middlewares.PublicAuthMiddleware) Router {
 	return Router{
 		authController:       authController,
 		linksController:      linkController,
+		dashboardController:  dashboardController,
 		publicAuthMiddleware: publicAuthMiddleware,
 	}
 }
@@ -39,13 +42,19 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 	{
 		linkRouter := v1Router.Group("/links").Use(r.publicAuthMiddleware.Handle)
 		linkRouter.POST("", r.linksController.Create)
-		linkRouter.GET("", r.linksController.All)
-		linkRouter.GET("/counts", r.linksController.Counts)
-		linkRouter.GET("/visits", r.linksController.Visits)
+		linkRouter.GET("", r.linksController.List)
+		//linkRouter.GET("/counts", r.linksController.Counts)
+		//linkRouter.GET("/visits", r.linksController.Visits)
 		linkRouter.GET("/:key", r.linksController.Status)
 		linkRouter.DELETE("/:key", r.linksController.Delete)
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
 		linkRouter.PATCH("/:key/deactivate", r.linksController.Deactivate)
+	}
+	{
+		dashboardRouter := v1Router.Group("/dashboard").Use(r.publicAuthMiddleware.Handle)
+		dashboardRouter.GET("/recent", r.dashboardController.Recent)
+		dashboardRouter.GET("/visit-chart", r.dashboardController.VisitChart)
+		dashboardRouter.GET("/info", r.dashboardController.Info)
 	}
 	//{
 	//	userRouter := v1Router.Group("/users")

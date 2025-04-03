@@ -1,13 +1,17 @@
 package main
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	gormext "github.com/h-varmazyar/gopack/gorm"
 	"github.com/h-varmazyar/p3o/configs"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
+	"time"
 )
 
 //var ctx = func() context.Context {
@@ -105,12 +109,23 @@ import (
 //}
 
 func initializePostgres(configs gormext.Configs) (*gorm.DB, error) {
-	configs.DbType = gormext.PostgreSQL
-	db, err := gormext.Open(configs)
+	DSN := fmt.Sprintf("postgresql://%v:%v@%v:%v/%v?sslmode=%v", configs.Username, configs.Password, configs.Host, configs.Port, configs.Name, "disable")
+	db, err := gorm.Open(postgres.Open(DSN), &gorm.Config{
+		SkipDefaultTransaction: true,
+		Logger:                 gormLogger.Default.LogMode(gormLogger.Info),
+	})
 	if err != nil {
-		log.WithError(err).Error("failed to open database")
+		log.WithError(err).Error("failed to initialize DB")
 		return nil, err
 	}
+	pdb, err := db.DB()
+	if err != nil {
+		log.WithError(err).Error("failed to get sql DB")
+		return nil, err
+	}
+	pdb.SetConnMaxLifetime(time.Minute)
+	pdb.SetMaxIdleConns(10)
+	pdb.SetMaxOpenConns(200)
 
 	if err = db.Transaction(func(tx *gorm.DB) error {
 		if err = gormext.EnableExtensions(tx,

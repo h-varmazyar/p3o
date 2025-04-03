@@ -6,15 +6,14 @@ import (
 	"github.com/h-varmazyar/p3o/internal/domain"
 )
 
-func (s Service) All(ctx context.Context, userId uint) (domain.All, error) {
-	s.log.Info("user:", userId)
+func (s Service) List(ctx context.Context, userId uint) (domain.LinkList, error) {
 	links, err := s.linkRepo.List(ctx, userId)
 	if err != nil {
 		s.log.WithError(err).Error("user link list")
-		return domain.All{}, err
+		return domain.LinkList{}, err
 	}
 
-	all := domain.All{
+	all := domain.LinkList{
 		Links: make([]domain.Link, len(links)),
 	}
 

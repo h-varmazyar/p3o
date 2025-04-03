@@ -16,7 +16,7 @@ func CORSMiddleware() gin.HandlerFunc {
 			"http://localhost",
 			"http://localhost:6854",
 			"https://p3o.ir",
-			"https://v0-p3o-ui.vercel.app/",
+			"https://v0-p3o-ui.vercel.app",
 		}
 
 		allowedPatterns := []string{

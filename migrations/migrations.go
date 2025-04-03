@@ -14,5 +14,9 @@ func Migrate(db *gorm.DB) error {
 		return err
 	}
 
+	if err := db.AutoMigrate(new(entities.Visit)); err != nil {
+		return err
+	}
+
 	return nil
 }

@@ -40,13 +40,16 @@ func (r Repository) Create(ctx context.Context, link entities.Link) (entities.Li
 
 func (r Repository) TotalLinkCount(ctx context.Context, userId uint) (int64, error) {
 	count := int64(0)
-	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Count(&count).Error; err != nil {
+	if err := r.DB.WithContext(ctx).
+		Table(tableName).
+		Where(repositories.Where(ColumnOwnerId), userId).
+		Count(&count).Error; err != nil {
 		return 0, errors.ErrLinkCountFetchFailed.AddOriginalError(err)
 	}
 	return count, nil
 }
 
-func (r Repository) Visits(ctx context.Context, userId uint) (int64, error) {
+func (r Repository) TotalVisits(ctx context.Context, userId uint) (int64, error) {
 	sum := int64(0)
 	if err := r.DB.WithContext(ctx).Table(tableName).Select(repositories.Sum(ColumnTotalVisit)).Where(repositories.Where(ColumnOwnerId), userId).Row().Scan(&sum); err != nil {
 		return 0, errors.ErrVisitCountFetchFailed.AddOriginalError(err)

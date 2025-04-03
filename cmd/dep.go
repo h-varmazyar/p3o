@@ -5,14 +5,17 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/configs"
 	authController "github.com/h-varmazyar/p3o/internal/controllers/auth"
+	dashboardController "github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	linkController "github.com/h-varmazyar/p3o/internal/controllers/link"
 	linkRepository "github.com/h-varmazyar/p3o/internal/repositories/link"
 	userRepository "github.com/h-varmazyar/p3o/internal/repositories/user"
+	visitRepository "github.com/h-varmazyar/p3o/internal/repositories/visit"
 	"github.com/h-varmazyar/p3o/internal/router"
 	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	linkService "github.com/h-varmazyar/p3o/internal/services/link"
 	userService "github.com/h-varmazyar/p3o/internal/services/user"
+	visitService "github.com/h-varmazyar/p3o/internal/services/visit"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/logger"
 	"github.com/redis/go-redis/v9"
@@ -31,16 +34,19 @@ type dependencies struct {
 	Gin          *gin.Engine
 	VisitChan    chan workers.VisitRecord
 	Repositories struct {
-		User userRepository.Repository
-		Link linkRepository.Repository
+		User  userRepository.Repository
+		Link  linkRepository.Repository
+		Visit visitRepository.Repository
 	}
 	Services struct {
-		User userService.Service
-		Link linkService.Service
+		User  userService.Service
+		Link  linkService.Service
+		Visit visitService.Service
 	}
 	Controllers struct {
-		AuthController authController.Controller
-		LinkController linkController.Controller
+		AuthController      authController.Controller
+		LinkController      linkController.Controller
+		DashboardController dashboardController.Controller
 	}
 	Routers struct {
 		Router      router.Router
@@ -78,13 +84,14 @@ var infraDependencies = func(dep *dependencies) (err error) {
 var controllerDependencies = func(dep *dependencies) (err error) {
 	dep.Controllers.AuthController = authController.New(dep.Services.User)
 	dep.Controllers.LinkController = linkController.New(dep.Services.Link, dep.VisitChan)
+	dep.Controllers.DashboardController = dashboardController.New(dep.Services.Link, dep.Services.Visit)
 	return
 }
 
 var repositoryDependencies = func(dep *dependencies) (err error) {
 	dep.Repositories.User = userRepository.New(dep.Log, dep.DB)
 	dep.Repositories.Link = linkRepository.New(dep.Log, dep.DB)
-
+	dep.Repositories.Visit = visitRepository.New(dep.Log, dep.DB)
 	return
 }
 
@@ -95,12 +102,13 @@ var serviceDependencies = func(dep *dependencies) (err error) {
 	}
 
 	dep.Services.Link = linkService.New(dep.Log, dep.Repositories.Link)
+	dep.Services.Visit = visitService.New(dep.Log, dep.Repositories.Visit, dep.Repositories.Link)
 	return
 }
 
 var routersDependencies = func(dep *dependencies) (err error) {
 	dep.Routers.Middlewares.PublicAuth = middlewares.NewPublicAuthMiddleware(dep.Log)
-	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Routers.Middlewares.PublicAuth)
+	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Controllers.DashboardController, dep.Routers.Middlewares.PublicAuth)
 	dep.Routers.Router = router.New(dep.Log, dep.Routers.V1, dep.Services.Link, dep.VisitChan)
 	return
 }

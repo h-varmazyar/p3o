@@ -23,6 +23,11 @@ type Link struct {
 	CreatedAt time.Time `json:"created_at"`
 }
 
-type All struct {
+type LinkList struct {
 	Links []Link `json:"links"`
+}
+
+type ChartItem struct {
+	Count     uint   `json:"count"`
+	TimeLabel string `json:"time_label"`
 }
