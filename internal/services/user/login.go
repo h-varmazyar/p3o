@@ -7,7 +7,6 @@ import (
 	"github.com/h-varmazyar/p3o/pkg/jwt"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
-	"time"
 )
 
 func (s Service) Login(ctx context.Context, username, password string) (domain.Tokens, error) {
@@ -39,7 +38,7 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 
 	return domain.Tokens{
 		Token:      jwtToken.AccessToken,
-		ExpireAt:   time.Unix(jwtToken.ExpiresIn, 0),
+		ExpireAt:   jwtToken.ExpiresAt,
 		IsVerified: user.VerifiedAt != nil,
 	}, nil
 }

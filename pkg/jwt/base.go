@@ -17,7 +17,7 @@ var authDuration = time.Hour * 24 * 30
 type JWT struct {
 	AccessToken  string
 	RefreshToken string
-	ExpiresIn    int64
+	ExpiresAt    time.Time
 }
 
 func GetClaim(tokenStr string) (string, time.Time, error) {
@@ -54,12 +54,11 @@ func GenerateToken(userID uint) JWT {
 	refreshToken := refreshToken(accessToken)
 
 	_, expiresAt, _ := GetClaim(accessToken)
-	expiresIn := int64(expiresAt.Sub(time.Now()).Seconds())
 
 	return JWT{
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-		ExpiresIn:    expiresIn,
+		ExpiresAt:    expiresAt,
 	}
 }
 
