@@ -10,13 +10,13 @@ import (
 
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println("cors called")
 		allowedOrigins := []string{
 			"http://127.0.0.1",
 			"http://localhost",
 			"http://localhost:6854",
 			"https://p3o.ir",
 			"https://v0-p3o-ui.vercel.app",
+			"https://v0-p3o-ui.vercel.app/",
 		}
 
 		allowedPatterns := []string{
@@ -42,6 +42,8 @@ func CORSMiddleware() gin.HandlerFunc {
 				}
 			}
 		}
+
+		fmt.Println("cors origin is:", origin)
 
 		if isAllowed {
 			c.Writer.Header().Set("Access-Control-Allow-Origin", origin)
