@@ -45,7 +45,9 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter.DELETE("/:key", r.linksController.Delete)
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
 		linkRouter.PATCH("/:key/deactivate", r.linksController.Deactivate)
-		linkRouter.GET("/:key/:id", r.linksController.IndirectVisit)
+
+		//public route
+		v1Router.GET("/links/:key/:id", r.linksController.IndirectVisit)
 	}
 	{
 		dashboardRouter := v1Router.Group("/dashboard").Use(r.publicAuthMiddleware.Handle)
