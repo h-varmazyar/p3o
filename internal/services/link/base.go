@@ -4,11 +4,15 @@ import (
 	"bytes"
 	"context"
 	"github.com/h-varmazyar/p3o/internal/entities"
+	visitRepo "github.com/h-varmazyar/p3o/internal/repositories/visit"
+	"github.com/h-varmazyar/p3o/configs"
 	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"regexp"
 	"strings"
+	"github.com/oklog/ulid/v2"
+	"time"
 )
 
 type linkRepository interface {
@@ -17,12 +21,23 @@ type linkRepository interface {
 	List(ctx context.Context, userId uint) ([]entities.Link, error)
 	Update(ctx context.Context, link entities.Link) error
 	TotalLinkCount(ctx context.Context, userId uint) (int64, error)
+	TotalVisits(ctx context.Context, userId uint) (int64, error)
 	Delete(ctx context.Context, key string) error
+}
+
+type visitRepository interface {
+	VisitCount(ctx context.Context, userId uint, from, to time.Time) (int64, error)
+	DailyVisitCount(ctx context.Context, userId uint, count uint) ([]visitRepo.DailyCount, error)
+	ReturnByID(ctx context.Context, id ulid.ULID) (entities.Visit, error)
+	Update(ctx context.Context, visit entities.Visit) error
+	Create(ctx context.Context, visit entities.Visit) (entities.Visit, error)
 }
 
 type Service struct {
 	log      *log.Logger
 	linkRepo linkRepository
+	visitRepo visitRepository
+	cfg configs.LinkService
 }
 
 func New(log *log.Logger, linkRepo linkRepository) Service {

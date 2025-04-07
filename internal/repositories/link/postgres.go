@@ -57,6 +57,15 @@ func (r Repository) TotalVisits(ctx context.Context, userId uint) (int64, error)
 	return sum, nil
 }
 
+func (r Repository) ReturnById(ctx context.Context, id uint) (entities.Link, error) {
+	link := entities.Link{}
+	err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnId), id).First(&link).Error
+	if err != nil {
+		return entities.Link{}, errors.ErrLinkNotFound.AddOriginalError(err)
+	}
+	return link, nil
+}
+
 func (r Repository) ReturnByKey(ctx context.Context, key string) (entities.Link, error) {
 	link := entities.Link{}
 	err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnKey), key).First(&link).Error

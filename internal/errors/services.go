@@ -14,6 +14,7 @@ var (
 	ErrLinkActivationBanned  = errors.NewWithHttp("services.link.activation_banned", 30003, http.StatusForbidden)
 	ErrInvalidLink           = errors.NewWithHttp("services.link.invalid_link", 30004, http.StatusBadRequest)
 	ErrKeyGenerationFailed   = errors.NewWithHttp("services.link.key_generation_failed", 30005, http.StatusInternalServerError)
+	ErrLinkVisitMismatch     = errors.NewWithHttp("services.link.link_visit_mismatch", 30006, http.StatusBadRequest)
 )
 
 // auth service errors :301ab

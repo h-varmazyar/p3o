@@ -7,7 +7,6 @@ import (
 	"github.com/h-varmazyar/p3o/internal/domain"
 	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
-	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"net"
@@ -22,20 +21,18 @@ type Router struct {
 	log       *log.Logger
 	v1Router  v1.Router
 	linkSrv   linkService
-	VisitChan chan workers.VisitRecord
 }
 
-func New(log *log.Logger, v1Router v1.Router, linkSrv linkService, visitChan chan workers.VisitRecord) Router {
+func New(log *log.Logger, v1Router v1.Router, linkSrv linkService) Router {
 	return Router{
 		v1Router:  v1Router,
 		linkSrv:   linkSrv,
 		log:       log,
-		VisitChan: visitChan,
 	}
 }
 
 func (r Router) StartServing(ginEngine *gin.Engine, address string) error {
-	handleRedirects(ginEngine, r.linkSrv, r.VisitChan)
+	handleRedirects(ginEngine, r.linkSrv)
 
 	ginEngine.Use(middlewares.CORSMiddleware())
 	r.RegisterRoutes(ginEngine)
@@ -74,17 +71,13 @@ func (r Router) RegisterRoutes(ginRouter *gin.Engine) {
 	r.v1Router.RegisterRoutes(apiRouter)
 }
 
-func handleRedirects(router *gin.Engine, linkSrv linkService, visitChannel chan workers.VisitRecord) {
+func handleRedirects(router *gin.Engine, linkSrv linkService) {
 	router.GET("/:key", func(c *gin.Context) {
 		key := c.Param("key")
 		link, err := linkSrv.ReturnByKey(c, key)
 		if err != nil {
 			utils.JsonHttpResponse(c, nil, err, false)
 			return
-		}
-		visitChannel <- workers.VisitRecord{
-			LinkId:    link.ID,
-			IpAddress: getIpAddress(c),
 		}
 		c.Redirect(http.StatusTemporaryRedirect, link.Url)
 	})

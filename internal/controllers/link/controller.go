@@ -14,6 +14,7 @@ type linkService interface {
 	TotalLinkCount(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)
 	Status(ctx context.Context, userId uint, key string) (string, error)
 	Delete(ctx context.Context, userId uint, key string) error
+	IndirectVisit(ctx context.Context, key string, id string) (domain.Link, error)
 }
 
 type Controller struct {

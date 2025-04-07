@@ -16,7 +16,6 @@ type LinkCreateResp struct {
 }
 
 type Link struct {
-	ID        uint      `json:"-"`
 	ShortLink string    `json:"short_link"`
 	Url       string    `json:"url"`
 	Visits    uint      `json:"visits"`

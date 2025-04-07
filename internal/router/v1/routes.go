@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/gin-gonic/gin"
-	visit "github.com/h-varmazyar/p3o/api/v1/visits"
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
@@ -16,7 +15,6 @@ type Router struct {
 	dashboardController  dashboard.Controller
 	linksController      link.Controller
 	usersController      user.Controller
-	visitsController     visit.Controller
 	publicAuthMiddleware middlewares.PublicAuthMiddleware
 }
 
@@ -43,12 +41,11 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter := v1Router.Group("/links").Use(r.publicAuthMiddleware.Handle)
 		linkRouter.POST("", r.linksController.Create)
 		linkRouter.GET("", r.linksController.List)
-		//linkRouter.GET("/counts", r.linksController.Counts)
-		//linkRouter.GET("/visits", r.linksController.Visits)
 		linkRouter.GET("/:key", r.linksController.Status)
 		linkRouter.DELETE("/:key", r.linksController.Delete)
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
 		linkRouter.PATCH("/:key/deactivate", r.linksController.Deactivate)
+		linkRouter.GET("/:key/:id", r.linksController.IndirectVisit)
 	}
 	{
 		dashboardRouter := v1Router.Group("/dashboard").Use(r.publicAuthMiddleware.Handle)

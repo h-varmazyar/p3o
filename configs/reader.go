@@ -43,5 +43,8 @@ func load() (Configs, error) {
 			//JWTPublicKey:  loadString("JWT_PUBLIC_KEY"),
 			//JWTPrivateKey: loadString("JWT_PRIVATE_KEY"),
 		},
+		LinkService: LinkService{
+			IndirectBaseURL: loadString("INDIRECT_BASE_URL"),
+		},
 	}, nil
 }

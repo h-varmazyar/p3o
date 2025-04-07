@@ -6,7 +6,7 @@ import (
 )
 
 func (c Controller) VisitChart(ctx *gin.Context) {
-	resp, err := c.visitSrv.VisitChart(ctx, utils.FetchUserId(ctx))
+	resp, err := c.linkSrv.VisitChart(ctx, utils.FetchUserId(ctx))
 	if err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
 		return

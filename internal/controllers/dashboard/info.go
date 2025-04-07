@@ -16,11 +16,11 @@ type infoResp struct {
 func (c Controller) Info(ctx *gin.Context) {
 	resp := infoResp{}
 	var err error
-	if resp.TotalVisit, err = c.visitSrv.TotalVisit(ctx, utils.FetchUserId(ctx)); err != nil {
+	if resp.TotalVisit, err = c.linkSrv.TotalVisit(ctx, utils.FetchUserId(ctx)); err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
 		return
 	}
-	if resp.DailyVisit, err = c.visitSrv.TodayInfo(ctx, utils.FetchUserId(ctx)); err != nil {
+	if resp.DailyVisit, err = c.linkSrv.TodayInfo(ctx, utils.FetchUserId(ctx)); err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
 		return
 	}

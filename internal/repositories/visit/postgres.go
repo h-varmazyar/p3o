@@ -37,6 +37,13 @@ func New(log *log.Logger, db *gorm.DB) Repository {
 	return repo
 }
 
+func (r Repository) Create(ctx context.Context, visit entities.Visit) (entities.Visit, error) {
+	if err := r.DB.WithContext(ctx).Model(&entities.Visit{}).Create(&visit).Error; err != nil {
+		return entities.Visit{}, err
+	}
+	return visit, nil
+}
+
 func (r Repository) DailyVisitCount(ctx context.Context, userId uint, days uint) ([]DailyCount, error) {
 	var results []DailyCount
 

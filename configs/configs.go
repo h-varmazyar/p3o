@@ -18,4 +18,5 @@ type Configs struct {
 	Redis       Redis
 	Server      Server
 	UserService UserService
+	LinkService LinkService
 }

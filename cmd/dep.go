@@ -15,7 +15,6 @@ import (
 	v1 "github.com/h-varmazyar/p3o/internal/router/v1"
 	linkService "github.com/h-varmazyar/p3o/internal/services/link"
 	userService "github.com/h-varmazyar/p3o/internal/services/user"
-	visitService "github.com/h-varmazyar/p3o/internal/services/visit"
 	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/logger"
 	"github.com/redis/go-redis/v9"
@@ -41,7 +40,6 @@ type dependencies struct {
 	Services struct {
 		User  userService.Service
 		Link  linkService.Service
-		Visit visitService.Service
 	}
 	Controllers struct {
 		AuthController      authController.Controller
@@ -84,7 +82,7 @@ var infraDependencies = func(dep *dependencies) (err error) {
 var controllerDependencies = func(dep *dependencies) (err error) {
 	dep.Controllers.AuthController = authController.New(dep.Services.User)
 	dep.Controllers.LinkController = linkController.New(dep.Services.Link, dep.VisitChan)
-	dep.Controllers.DashboardController = dashboardController.New(dep.Services.Link, dep.Services.Visit)
+	dep.Controllers.DashboardController = dashboardController.New(dep.Services.Link)
 	return
 }
 
@@ -102,14 +100,13 @@ var serviceDependencies = func(dep *dependencies) (err error) {
 	}
 
 	dep.Services.Link = linkService.New(dep.Log, dep.Repositories.Link)
-	dep.Services.Visit = visitService.New(dep.Log, dep.Repositories.Visit, dep.Repositories.Link)
 	return
 }
 
 var routersDependencies = func(dep *dependencies) (err error) {
 	dep.Routers.Middlewares.PublicAuth = middlewares.NewPublicAuthMiddleware(dep.Log)
 	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Controllers.DashboardController, dep.Routers.Middlewares.PublicAuth)
-	dep.Routers.Router = router.New(dep.Log, dep.Routers.V1, dep.Services.Link, dep.VisitChan)
+	dep.Routers.Router = router.New(dep.Log, dep.Routers.V1, dep.Services.Link)
 	return
 }
 
