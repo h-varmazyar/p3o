@@ -3,7 +3,6 @@ package link
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/h-varmazyar/p3o/pkg/utils"
-	"net/http"
 )
 
 func (c Controller) IndirectVisit(ctx *gin.Context) {
@@ -16,5 +15,6 @@ func (c Controller) IndirectVisit(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusMovedPermanently, link.Url)
+	utils.JsonHttpResponse(ctx, link, nil, true)
+
 }
