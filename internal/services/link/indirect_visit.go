@@ -27,8 +27,10 @@ func (s Service) IndirectVisit(ctx context.Context, key string, id string) (doma
 		return domain.Link{}, errors.ErrLinkVisitMismatch
 	}
 
+	if visit.RedirectedAt.IsZero() {
+		visit.RedirectedAt = time.Now()
+	}
 	visit.Status = entities.VisitStatusCompleted
-	visit.RedirectedAt = time.Now()
 
 	if err = s.visitRepo.Update(ctx, visit); err != nil {
 		return domain.Link{}, err

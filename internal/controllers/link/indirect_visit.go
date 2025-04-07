@@ -16,5 +16,5 @@ func (c Controller) IndirectVisit(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Redirect(http.StatusPermanentRedirect, link.Url)
+	ctx.Redirect(http.StatusMovedPermanently, link.Url)
 }
