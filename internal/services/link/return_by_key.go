@@ -16,12 +16,12 @@ func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, erro
 	}
 
 	visit := entities.Visit{
-		ID :ulid.Make(),
-		LinkId  :link.ID,
-		UserId  : link.OwnerId,
-		OS      :"",
-		Browser :"",
-		IP      :"",
+		ID:      ulid.Make().String(),
+		LinkId:  link.ID,
+		UserId:  link.OwnerId,
+		OS:      "",
+		Browser: "",
+		IP:      "",
 	}
 	url := ""
 	if link.Immediate {
@@ -29,7 +29,7 @@ func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, erro
 		visit.RedirectedAt = time.Now()
 		visit.Status = entities.VisitStatusCompleted
 	} else {
-		url = fmt.Sprintf("%v/%v/%v", s.cfg.IndirectBaseURL, link.ID, visit.ID)
+		url = fmt.Sprintf("%v/%v/%v", s.cfg.IndirectBaseURL, link.Key, visit.ID)
 		visit.Status = entities.VisitStatusAdsPending
 	}
 

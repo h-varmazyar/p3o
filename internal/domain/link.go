@@ -3,9 +3,10 @@ package domain
 import "time"
 
 type LinkCreateReq struct {
-	UserId  uint   `json:"user_id"`
-	Key     string `json:"key"`
-	RealUrl string `json:"real_url"`
+	UserId    uint   `json:"user_id"`
+	Key       string `json:"key"`
+	RealUrl   string `json:"real_url"`
+	Immediate bool   `json:"immediate"`
 }
 
 type LinkCreateResp struct {

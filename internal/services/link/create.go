@@ -25,7 +25,7 @@ func (s Service) Create(ctx context.Context, req domain.LinkCreateReq) (domain.L
 		OwnerId:   req.UserId,
 		Key:       req.Key,
 		RealLink:  req.RealUrl,
-		Immediate: true,
+		Immediate: req.Immediate,
 		Status:    entities.LinkStatusActive,
 	}
 

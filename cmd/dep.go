@@ -38,8 +38,8 @@ type dependencies struct {
 		Visit visitRepository.Repository
 	}
 	Services struct {
-		User  userService.Service
-		Link  linkService.Service
+		User userService.Service
+		Link linkService.Service
 	}
 	Controllers struct {
 		AuthController      authController.Controller
@@ -99,7 +99,7 @@ var serviceDependencies = func(dep *dependencies) (err error) {
 		return
 	}
 
-	dep.Services.Link = linkService.New(dep.Log, dep.Repositories.Link)
+	dep.Services.Link = linkService.New(dep.Log, dep.Cfg.LinkService, dep.Repositories.Link, dep.Repositories.Visit)
 	return
 }
 

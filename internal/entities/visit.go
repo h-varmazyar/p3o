@@ -1,8 +1,6 @@
 package entities
 
-import(
-	"gorm.io/gorm"
-	"github.com/oklog/ulid/v2"
+import (
 	"time"
 )
 
@@ -29,18 +27,19 @@ const (
 type VisitStatus string
 
 const (
-	VisitStatusCompleted VisitStatus = "completed"
+	VisitStatusCompleted  VisitStatus = "completed"
 	VisitStatusAdsPending VisitStatus = "ads_pending"
 )
 
 type Visit struct {
-	gorm.Model
-	ID ulid.ULID
-	LinkId  uint
-	UserId  uint
-	OS      OS
-	Browser Browser
-	IP      string
+	ID           string `gorm:"primarykey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	LinkId       uint
+	UserId       uint
+	OS           OS
+	Browser      Browser
+	IP           string
 	RedirectedAt time.Time
-	Status VisitStatus
+	Status       VisitStatus
 }

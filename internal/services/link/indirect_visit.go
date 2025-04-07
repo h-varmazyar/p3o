@@ -15,11 +15,10 @@ func (s Service) IndirectVisit(ctx context.Context, key string, id string) (doma
 		return domain.Link{}, err
 	}
 
-	visitId, err := ulid.Parse(id)
-	if err != nil {
+	if _, err = ulid.Parse(id); err != nil {
 		return domain.Link{}, err
 	}
-	visit, err := s.visitRepo.ReturnByID(ctx, visitId)
+	visit, err := s.visitRepo.ReturnByID(ctx, id)
 	if err != nil {
 		return domain.Link{}, err
 	}
