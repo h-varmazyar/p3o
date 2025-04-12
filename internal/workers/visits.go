@@ -15,16 +15,9 @@ type visitRepository interface {
 	Create(ctx context.Context, visit entities.Visit) (entities.Visit, error)
 }
 
-type VisitRecord struct {
-	LinkId    uint
-	IpAddress string
-	OS entities.OS
-	Browser entities.Browser
-}
-
 type VisitsWorker struct {
 	log       *log.Logger
-	visitChan chan VisitRecord
+	visitChan chan entities.Visit
 	linkRepo  linkRepository
 	visitRepo visitRepository
 }
@@ -59,7 +52,7 @@ func (w VisitsWorker) start() error {
 	return nil
 }
 
-func (w VisitsWorker) visit(ctx context.Context, record VisitRecord) error {
+func (w VisitsWorker) visit(ctx context.Context, record entities.Visit) error {
 	link, err := w.linkRepo.ReturnById(ctx, record.LinkId)
 	if err != nil {
 		return err

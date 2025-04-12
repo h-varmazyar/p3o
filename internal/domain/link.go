@@ -16,6 +16,20 @@ type LinkCreateResp struct {
 	Immediate bool   `json:"immediate"`
 }
 
+type GetLinkReq struct {
+	Key       string `json:"key"`
+	OS 		  string `json:"os"`
+	Browser   string `json:"browser"`
+	Cookie    string `json:"coockie"`
+	IP        string `json:"ip"`
+	UserAgent string `json:"user_agent"`
+}
+
+type GetLinkResp struct {
+	Url    string `json:"url"`
+	Cookie string `json:"cookie"`
+}
+
 type Link struct {
 	ShortLink string    `json:"short_link"`
 	Url       string    `json:"url"`

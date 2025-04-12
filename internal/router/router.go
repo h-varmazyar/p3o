@@ -14,7 +14,7 @@ import (
 )
 
 type linkService interface {
-	ReturnByKey(ctx context.Context, key string) (domain.Link, error)
+	ReturnByKey(ctx context.Context, key domain.GetLinkReq) (domain.GetLinkResp, error)
 }
 
 type Router struct {
@@ -73,12 +73,18 @@ func (r Router) RegisterRoutes(ginRouter *gin.Engine) {
 
 func handleRedirects(router *gin.Engine, linkSrv linkService) {
 	router.GET("/:key", func(c *gin.Context) {
-		key := c.Param("key")
-		link, err := linkSrv.ReturnByKey(c, key)
+		req:=domain.GetLinkReq{}
+		req.Key = c.Param("key")
+		req.Cookie, _= c.Cookie("visitor-info")
+		req.Ip = getIpAddress(c)
+
+		link, err := linkSrv.ReturnByKey(c, req)
 		if err != nil {
 			utils.JsonHttpResponse(c, nil, err, false)
 			return
 		}
+
+		c.SetCookie("visitor-info", link.Cookie, -1, "/", "", true, true)
 		c.Redirect(http.StatusTemporaryRedirect, link.Url)
 	})
 }

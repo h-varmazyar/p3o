@@ -29,13 +29,13 @@ type visitRepository interface {
 	DailyVisitCount(ctx context.Context, userId uint, count uint) ([]visitRepo.DailyCount, error)
 	ReturnByID(ctx context.Context, id string) (entities.Visit, error)
 	Update(ctx context.Context, visit entities.Visit) error
-	Create(ctx context.Context, visit entities.Visit) (entities.Visit, error)
 }
 
 type Service struct {
 	log       *log.Logger
 	linkRepo  linkRepository
 	visitRepo visitRepository
+	visitChan chan entities.Visit
 	cfg       configs.LinkService
 }
 

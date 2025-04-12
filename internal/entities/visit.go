@@ -39,6 +39,8 @@ type Visit struct {
 	UserId       uint
 	OS           OS
 	Browser      Browser
+	UserAgent    string
+	Cookie       string
 	IP           string
 	RedirectedAt time.Time
 	Status       VisitStatus

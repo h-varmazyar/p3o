@@ -7,22 +7,29 @@ import (
 	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/oklog/ulid/v2"
 	"time"
+	"golang.org/x/crypto/bcrypt"
 )
 
-func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, error) {
-	link, err := s.linkRepo.ReturnByKey(ctx, key)
+func (s Service) ReturnByKey(ctx context.Context, req domain.GetLinkReq) (domain.GetLinkResp, error) {
+	link, err := s.linkRepo.ReturnByKey(ctx, req.Key)
 	if err != nil {
-		return domain.Link{}, err
+		return domain.GetLinkResp{}, err
 	}
 
 	visit := entities.Visit{
-		ID:      ulid.Make().String(),
-		LinkId:  link.ID,
-		UserId:  link.OwnerId,
-		OS:      "",
-		Browser: "",
-		IP:      "",
+		ID:        ulid.Make().String(),
+		LinkId:    link.ID,
+		UserId:    link.OwnerId,
+		OS:        req.OS,
+		Browser:   req.Browser,
+		UserAgent: req.UserAgent,
+		IP:        req.IP,
 	}
+
+	if req.Cookie == "" {
+		visit.Cookie = createCookie(visit.ID, req.Key)
+	}
+
 	url := ""
 	if link.Immediate {
 		url = link.RealLink
@@ -33,13 +40,19 @@ func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, erro
 		visit.Status = entities.VisitStatusAdsPending
 	}
 
-	_, err = s.visitRepo.Create(ctx, visit)
+	s.visitChan <- visit
+
+	return domain.GetLinkResp{
+		Url: url,
+	}, nil
+}
+
+func createCookie(id, key string) (string, error) {
+	str:=id+key
+	bytes, err := bcrypt.GenerateFromPassword([]byte(str), 14)
 	if err != nil {
-		return domain.Link{}, err
+		return "", err
 	}
 
-	return domain.Link{
-		ShortLink: fmt.Sprintf("https://p3o.ir/%v", link.Key),
-		Url:       url,
-	}, nil
+	return string(bytes), nil
 }
