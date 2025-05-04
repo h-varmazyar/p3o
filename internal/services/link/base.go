@@ -3,15 +3,17 @@ package link
 import (
 	"bytes"
 	"context"
-	"github.com/h-varmazyar/p3o/configs"
-	"github.com/h-varmazyar/p3o/internal/entities"
-	visitRepo "github.com/h-varmazyar/p3o/internal/repositories/visit"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"os"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/h-varmazyar/p3o/configs"
+	"github.com/h-varmazyar/p3o/internal/entities"
+	visitRepo "github.com/h-varmazyar/p3o/internal/repositories/visit"
+	"github.com/h-varmazyar/p3o/pkg/cache"
+	log "github.com/sirupsen/logrus"
 )
 
 type linkRepository interface {
@@ -37,14 +39,16 @@ type Service struct {
 	linkRepo  linkRepository
 	visitRepo visitRepository
 	cfg       configs.LinkService
+	linksCache cache.RedisCache
 }
 
-func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository) Service {
+func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository, linksCache cache.RedisCache) Service {
 	return Service{
 		log:       log,
 		cfg:       cfg,
 		linkRepo:  linkRepo,
 		visitRepo: visitRepo,
+		linksCache: linksCache,
 	}
 }
 
