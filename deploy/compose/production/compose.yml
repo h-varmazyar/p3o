@@ -31,7 +31,7 @@ services:
     networks:
       - p3o
     ports:
-      - "6379:6379"
+      - "7601:6379"
     restart: always
 
   p3o:
