@@ -18,21 +18,21 @@ services:
       - "7501:5432"
     restart: always
 
-#  redis:
-#    container_name: redis
-#    image: docker.iranserver.com/bitnami/redis:latest
-#    command: redis-server --requirepass ${REDIS_PASSWORD}
-#    environment:
-#      - ALLOW_EMPTY_PASSWORD=no
-#    env_file:
-#      - ./.env
-#    volumes:
-#      - redis_p3o_data:/var/lib/redis
-#    networks:
-#      - p3o
-#    ports:
-#      - "6379:6379"
-#    restart: always
+  redis:
+    container_name: redis
+    image: docker.iranserver.com/bitnami/redis:latest
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    environment:
+      - ALLOW_EMPTY_PASSWORD=no
+    env_file:
+      - ./.env
+    volumes:
+      - redis_p3o_data:/var/lib/redis
+    networks:
+      - p3o
+    ports:
+      - "6379:6379"
+    restart: always
 
   p3o:
     container_name: p3o
