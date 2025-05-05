@@ -16,6 +16,7 @@ import (
 	linkService "github.com/h-varmazyar/p3o/internal/services/link"
 	userService "github.com/h-varmazyar/p3o/internal/services/user"
 	"github.com/h-varmazyar/p3o/internal/workers"
+	"github.com/h-varmazyar/p3o/pkg/cache"
 	"github.com/h-varmazyar/p3o/pkg/logger"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
@@ -52,6 +53,9 @@ type dependencies struct {
 		Middlewares struct {
 			PublicAuth middlewares.PublicAuthMiddleware
 		}
+	}
+	Cache struct {
+		LinkCache *cache.RedisCache
 	}
 }
 
@@ -93,13 +97,18 @@ var repositoryDependencies = func(dep *dependencies) (err error) {
 	return
 }
 
+var cacheDependencies = func(dep *dependencies) (err error) {
+	dep.Cache.LinkCache, err = cache.NewRedisCache(dep.Log, dep.Cfg.Redis)
+	return
+}
+
 var serviceDependencies = func(dep *dependencies) (err error) {
 	dep.Services.User, err = userService.New(dep.Log, dep.Cfg.UserService, dep.Repositories.User)
 	if err != nil {
 		return
 	}
 
-	dep.Services.Link = linkService.New(dep.Log, dep.Cfg.LinkService, dep.Repositories.Link, dep.Repositories.Visit)
+	dep.Services.Link = linkService.New(dep.Log, dep.Cfg.LinkService, dep.Repositories.Link, dep.Repositories.Visit, dep.Cache.LinkCache)
 	return
 }
 
@@ -116,6 +125,10 @@ func InjectDependencies() (dep dependencies, err error) {
 	}
 
 	if err = infraDependencies(&dep); err != nil {
+		return
+	}
+
+	if err = cacheDependencies(&dep); err != nil {
 		return
 	}
 

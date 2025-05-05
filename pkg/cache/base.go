@@ -2,31 +2,33 @@ package cache
 
 import (
 	"context"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/h-varmazyar/p3o/configs"
 )
 
 type RedisCache struct {
-    client *redis.Client
-    ctx    context.Context
+	log    *log.Logger
+	client *redis.Client
+	ctx    context.Context
 }
 
-func NewRedisCache(addr, cfg configs.Redis) (*RedisCache, error) {
-    ctx := context.Background()
-    client := redis.NewClient(&redis.Options{
-        Addr:     cfg.Address,
-        Password: cfg.Password,
-        DB:       cfg.LinkCacheDB,
-		PoolSize: 10,    
-    })
+func NewRedisCache(log *log.Logger, cfg configs.Redis) (*RedisCache, error) {
+	ctx := context.Background()
+	client := redis.NewClient(&redis.Options{
+		Addr:     cfg.Address,
+		Password: cfg.Password,
+		DB:       cfg.LinkCacheDB,
+		PoolSize: 10,
+	})
 
-    // Test connection
-    if _, err := client.Ping(ctx).Result(); err != nil {
-        return nil, err
-    }
+	// Test connection
+	if _, err := client.Ping(ctx).Result(); err != nil {
+		return nil, err
+	}
 
-	if err := client.ConfigSet(ctx, "maxmemory", "100mb").Err();err != nil {
+	if err := client.ConfigSet(ctx, "maxmemory", "100mb").Err(); err != nil {
 		return nil, err
 	}
 
@@ -34,8 +36,9 @@ func NewRedisCache(addr, cfg configs.Redis) (*RedisCache, error) {
 		return nil, err
 	}
 
-    return &RedisCache{
-        client: client,
-        ctx:    ctx,
-    }, nil
+	return &RedisCache{
+		log:    log,
+		client: client,
+		ctx:    ctx,
+	}, nil
 }

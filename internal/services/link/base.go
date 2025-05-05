@@ -35,19 +35,19 @@ type visitRepository interface {
 }
 
 type Service struct {
-	log       *log.Logger
-	linkRepo  linkRepository
-	visitRepo visitRepository
-	cfg       configs.LinkService
-	linksCache cache.RedisCache
+	log        *log.Logger
+	linkRepo   linkRepository
+	visitRepo  visitRepository
+	cfg        configs.LinkService
+	linksCache *cache.RedisCache
 }
 
-func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository, linksCache cache.RedisCache) Service {
+func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository, linksCache *cache.RedisCache) Service {
 	return Service{
-		log:       log,
-		cfg:       cfg,
-		linkRepo:  linkRepo,
-		visitRepo: visitRepo,
+		log:        log,
+		cfg:        cfg,
+		linkRepo:   linkRepo,
+		visitRepo:  visitRepo,
 		linksCache: linksCache,
 	}
 }

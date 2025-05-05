@@ -34,6 +34,10 @@ func (s Service) Create(ctx context.Context, req domain.LinkCreateReq) (domain.L
 		return domain.LinkCreateResp{}, errors.ErrUnexpected.AddOriginalError(err)
 	}
 
+	if err = s.linksCache.Delete(req.Key); err != nil {
+		s.log.Error(err)
+	}
+
 	return domain.LinkCreateResp{
 		Url:       linkData.RealLink,
 		Key:       linkData.Key,
