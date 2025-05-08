@@ -5,7 +5,6 @@ import (
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
-	"github.com/h-varmazyar/p3o/internal/controllers/user"
 	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 )
 
@@ -14,7 +13,6 @@ type Router struct {
 	authController       auth.Controller
 	dashboardController  dashboard.Controller
 	linksController      link.Controller
-	usersController      user.Controller
 	publicAuthMiddleware middlewares.PublicAuthMiddleware
 }
 
