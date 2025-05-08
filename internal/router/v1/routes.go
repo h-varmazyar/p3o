@@ -41,7 +41,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter := v1Router.Group("/links").Use(r.publicAuthMiddleware.Handle)
 		linkRouter.POST("", r.linksController.Create)
 		linkRouter.GET("", r.linksController.List)
-		linkRouter.GET("/:key", r.linksController.Status)
+		linkRouter.GET("/:key", r.linksController.Fetch)
 		linkRouter.DELETE("/:key", r.linksController.Delete)
 		linkRouter.GET("/:key/status", r.linksController.Status)
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
