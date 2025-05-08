@@ -5,12 +5,12 @@ import (
 	"github.com/h-varmazyar/p3o/pkg/utils"
 )
 
-func (c Controller)Status(ctx *gin.Context){
-	key:=ctx.Param("key")
+func (c Controller) Status(ctx *gin.Context) {
+	key := ctx.Param("key")
 
-	if status, err:=c.linkService.Status(ctx, utils.FetchUserId(ctx), key); err!=nil{
+	if status, err := c.linkService.Status(ctx, utils.FetchUserId(ctx), key); err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
-	}else{
+	} else {
 		utils.JsonHttpResponse(ctx, map[string]interface{}{"status": status}, nil, true)
 	}
 }

@@ -13,6 +13,7 @@ type linkService interface {
 	Deactivate(ctx context.Context, userId uint, key string) error
 	TotalLinkCount(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)
 	Status(ctx context.Context, userId uint, key string) (string, error)
+	Fetch(ctx context.Context, userId uint, key string) (domain.LinkDetails, error)
 	Delete(ctx context.Context, userId uint, key string) error
 	IndirectVisit(ctx context.Context, key string, id string) (domain.Link, error)
 }

@@ -17,10 +17,24 @@ type LinkCreateResp struct {
 }
 
 type Link struct {
-	ShortLink string    `json:"short_link"`
-	Url       string    `json:"url"`
-	Visits    uint      `json:"visits"`
-	CreatedAt time.Time `json:"created_at"`
+	ShortLink   string    `json:"short_link"`
+	Url         string    `json:"url"`
+	Status      string    `json:"status"`
+	IsImmediate bool      `json:"is_immediate"`
+	Visits      uint      `json:"visits"`
+	CreatedAt   time.Time `json:"created_at"`
+}
+
+type LinkDetails struct {
+	ShortLink           string    `json:"short_link"`
+	Url                 string    `json:"url"`
+	Status              string    `json:"status"`
+	IsImmediate         bool      `json:"is_immediate"`
+	Visits              uint      `json:"visits"`
+	ExpireAt            time.Time `json:"expired_at"`
+	CreatedAt           time.Time `json:"created_at"`
+	ProtectedByPassword bool      `json:"protected_by_password"`
+	MaxVisit            uint32    `json:"max_visit"`
 }
 
 type LinkList struct {

@@ -19,10 +19,12 @@ func (s Service) List(ctx context.Context, userId uint) (domain.LinkList, error)
 
 	for i, link := range links {
 		all.Links[i] = domain.Link{
-			ShortLink: fmt.Sprintf("https://p3o.ir/%v", link.Key),
-			Url:       link.RealLink,
-			Visits:    uint(link.TotalVisit),
-			CreatedAt: link.CreatedAt,
+			ShortLink:   fmt.Sprintf("https://p3o.ir/%v", link.Key),
+			Url:         link.RealLink,
+			Status:      link.Status.ToShowableString(),
+			IsImmediate: link.Immediate,
+			Visits:      uint(link.TotalVisit),
+			CreatedAt:   link.CreatedAt,
 		}
 	}
 
