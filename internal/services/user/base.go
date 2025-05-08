@@ -56,7 +56,7 @@ func (s Service) fetchUser(ctx context.Context, username string) (entities.User,
 	if utils.IsValidMobile(username) {
 		user, err = s.userRepo.ReturnByMobile(ctx, username)
 		if err != nil {
-			if sysErr.Is(err, errors.ErrUserNotFound) {
+			if sysErr.As(err, &errors.ErrUserNotFound) {
 				user.Mobile = username
 				return user, false, nil
 			}
@@ -65,7 +65,7 @@ func (s Service) fetchUser(ctx context.Context, username string) (entities.User,
 	} else if utils.IsValidEmail(username) {
 		user, err = s.userRepo.ReturnByEmail(ctx, username)
 		if err != nil {
-			if sysErr.Is(err, errors.ErrUserNotFound) {
+			if sysErr.As(err, &errors.ErrUserNotFound) {
 				user.Email = username
 				return user, false, nil
 			}

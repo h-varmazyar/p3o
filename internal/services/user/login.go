@@ -2,6 +2,7 @@ package user
 
 import (
 	"context"
+	"fmt"
 	"github.com/h-varmazyar/p3o/internal/domain"
 	"github.com/h-varmazyar/p3o/internal/errors"
 	"github.com/h-varmazyar/p3o/pkg/jwt"
@@ -12,6 +13,7 @@ import (
 func (s Service) Login(ctx context.Context, username, password string) (domain.Tokens, error) {
 	user, found, err := s.fetchUser(ctx, username)
 	if err != nil {
+		fmt.Println("failed to fetch user:", err)
 		s.log.WithError(err)
 		return domain.Tokens{}, err
 	}
