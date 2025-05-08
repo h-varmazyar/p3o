@@ -9,7 +9,7 @@ var Where = func(column string) string {
 }
 
 var Sum = func(column string) string {
-	return fmt.Sprintf("SUM(%v)", column)
+	return fmt.Sprintf("COALESCE(SUM(%v), 0)", column)
 }
 
 var Count = func(column string) string {
