@@ -13,7 +13,7 @@ import (
 type UserRepository interface {
 	ReturnByMobile(ctx context.Context, username string) (entities.User, error)
 	ReturnByEmail(ctx context.Context, username string) (entities.User, error)
-	Create(ctx context.Context, user entities.User) error
+	Create(ctx context.Context, user entities.User) (entities.User, error)
 }
 
 type Service struct {

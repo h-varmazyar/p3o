@@ -23,12 +23,12 @@ func New(log *log.Logger, db *gorm.DB) Repository {
 	return repo
 }
 
-func (r Repository) Create(ctx context.Context, user entities.User) error {
+func (r Repository) Create(ctx context.Context, user entities.User) (entities.User, error) {
 	err := r.DB.WithContext(ctx).Save(&user).Error
 	if err != nil {
-		return ErrFailedToCreateUser.AddOriginalError(err)
+		return entities.User{}, ErrFailedToCreateUser.AddOriginalError(err)
 	}
-	return nil
+	return user, nil
 }
 
 func (r Repository) ReturnByMobile(ctx context.Context, mobile string) (entities.User, error) {
