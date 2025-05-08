@@ -36,6 +36,7 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 			s.log.WithError(err)
 			return domain.Tokens{}, err
 		}
+		s.log.Infof("user creation done")
 	}
 
 	jwtToken := jwt.GenerateToken(user.ID)
