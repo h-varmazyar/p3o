@@ -90,6 +90,7 @@ var controllerDependencies = func(dep *dependencies) (err error) {
 	dep.Controllers.AuthController = authController.New(dep.Services.User)
 	dep.Controllers.LinkController = linkController.New(dep.Services.Link, dep.VisitChan)
 	dep.Controllers.DashboardController = dashboardController.New(dep.Services.Link)
+	dep.Controllers.UserController = userController.New(dep.Services.User)
 	return
 }
 
