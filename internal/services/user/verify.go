@@ -5,6 +5,7 @@ import (
 	sysErr "errors"
 	"github.com/h-varmazyar/p3o/internal/domain"
 	"github.com/h-varmazyar/p3o/internal/errors"
+	userRepository "github.com/h-varmazyar/p3o/internal/repositories/user"
 	"github.com/h-varmazyar/p3o/pkg/cache"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 )
@@ -16,10 +17,9 @@ func (s Service) Verify(ctx context.Context, req domain.VerifyUserReq) (domain.V
 	}
 
 	tempUser, err := s.userRepo.ReturnByMobile(ctx, req.Mobile)
-	if err == nil || !sysErr.As(err, &errors.ErrUserNotFound) {
-		return domain.VerifyUserResp{}, errors.ErrUserMobileAvailable
-	}
-	if tempUser.ID != user.ID {
+	if err != nil && sysErr.Is(err, userRepository.ErrUserNotFound) {
+		return domain.VerifyUserResp{}, err
+	} else if tempUser.ID != user.ID {
 		return domain.VerifyUserResp{}, errors.ErrUserMobileAvailable
 	}
 
