@@ -17,7 +17,7 @@ func (s Service) Verify(ctx context.Context, req domain.VerifyUserReq) (domain.V
 	}
 
 	tempUser, err := s.userRepo.ReturnByMobile(ctx, req.Mobile)
-	if err != nil && sysErr.Is(err, userRepository.ErrUserNotFound) {
+	if err != nil && !sysErr.Is(err, userRepository.ErrUserNotFound) {
 		return domain.VerifyUserResp{}, err
 	} else if tempUser.ID != user.ID {
 		return domain.VerifyUserResp{}, errors.ErrUserMobileAvailable
