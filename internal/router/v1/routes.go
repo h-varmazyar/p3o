@@ -57,7 +57,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		dashboardRouter.GET("/info", r.dashboardController.Info)
 	}
 	{
-		userRouter := v1Router.Group("/users")
+		userRouter := v1Router.Group("/users").Use(r.publicAuthMiddleware.Handle)
 		userRouter.GET("/info", r.usersController.GetInfo)
 		userRouter.PUT("/edit", r.usersController.Edit)
 		userRouter.POST("/verify", r.usersController.Verify)

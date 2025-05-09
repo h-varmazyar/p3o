@@ -4,11 +4,18 @@ import (
 	"context"
 	"errors"
 	"github.com/h-varmazyar/p3o/internal/entities"
+	"github.com/h-varmazyar/p3o/internal/repositories"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
 const tableName = "users"
+
+const (
+	ColumnId     = "id"
+	ColumnMobile = "mobile"
+	ColumnEmail  = "email"
+)
 
 type Repository struct {
 	*gorm.DB
@@ -33,7 +40,7 @@ func (r Repository) Create(ctx context.Context, user entities.User) (entities.Us
 
 func (r Repository) ReturnById(ctx context.Context, id uint) (entities.User, error) {
 	user := entities.User{}
-	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("id = ?", id).First(&user).Error
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where(repositories.Where(ColumnId), id).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user, ErrUserNotFound
@@ -45,7 +52,7 @@ func (r Repository) ReturnById(ctx context.Context, id uint) (entities.User, err
 
 func (r Repository) ReturnByMobile(ctx context.Context, mobile string) (entities.User, error) {
 	user := entities.User{}
-	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("mobile = ?", mobile).First(&user).Error
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where(repositories.Where(ColumnMobile), mobile).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user, ErrUserNotFound
