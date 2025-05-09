@@ -6,49 +6,36 @@ import (
 	"github.com/h-varmazyar/p3o/configs"
 	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/h-varmazyar/p3o/internal/errors"
+	"github.com/h-varmazyar/p3o/pkg/cache"
 	"github.com/h-varmazyar/p3o/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 type UserRepository interface {
+	ReturnById(ctx context.Context, id uint) (entities.User, error)
 	ReturnByMobile(ctx context.Context, username string) (entities.User, error)
 	ReturnByEmail(ctx context.Context, username string) (entities.User, error)
 	Create(ctx context.Context, user entities.User) (entities.User, error)
+	Update(ctx context.Context, user entities.User) error
 }
 
 type Service struct {
-	log      *log.Logger
-	userRepo UserRepository
-	//signKey   *rsa.PrivateKey
-	//verifyKey *rsa.PublicKey
-	cfg configs.UserService
+	log                   *log.Logger
+	cfg                   configs.UserService
+	userRepo              UserRepository
+	verificationCodeCache *cache.VerificationCodeRedisCache
 }
 
-func New(log *log.Logger, cfg configs.UserService, userRepo UserRepository) (Service, error) {
+func New(log *log.Logger, cfg configs.UserService, userRepo UserRepository, verificationCodeCache *cache.VerificationCodeRedisCache) (Service, error) {
 	srv := Service{
-		log:      log,
-		userRepo: userRepo,
-		cfg:      cfg,
+		log:                   log,
+		cfg:                   cfg,
+		userRepo:              userRepo,
+		verificationCodeCache: verificationCodeCache,
 	}
-	//
-	//if err := srv.generateKeys(); err != nil {
-	//	return Service{}, err
-	//}
+
 	return srv, nil
 }
-
-//func (s Service) generateKeys() error {
-//	var err error
-//	s.verifyKey, err = jwt.ParseRSAPublicKeyFromPEM([]byte(s.cfg.JWTPublicKey))
-//	if err != nil {
-//		return err
-//	}
-//	s.signKey, err = jwt.ParseRSAPrivateKeyFromPEM([]byte(s.cfg.JWTPrivateKey))
-//	if err != nil {
-//		return err
-//	}
-//	return nil
-//}
 
 func (s Service) fetchUser(ctx context.Context, username string) (entities.User, bool, error) {
 	var err error

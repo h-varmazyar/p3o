@@ -17,10 +17,12 @@ var (
 	ErrLinkVisitMismatch     = errors.NewWithHttp("services.link.link_visit_mismatch", 30006, http.StatusBadRequest)
 )
 
-// auth service errors :301ab
+// user service errors :301ab
 var (
-	ErrWrongPassword           = errors.NewWithHttp("services.auth.wrong_password", 30100, http.StatusBadRequest)
-	ErrLoginFailed             = errors.NewWithHttp("services.auth.login_failed", 30101, http.StatusBadRequest)
-	ErrInvalidUsernamePassword = errors.NewWithHttp("services.auth.invalid_username", 30102, http.StatusBadRequest)
-	ErrPasswordHashingFailed   = errors.NewWithHttp("services.auth.password_hashing_failed", 30103, http.StatusInternalServerError)
+	ErrWrongPassword           = errors.NewWithHttp("services.user.wrong_password", 30100, http.StatusBadRequest)
+	ErrLoginFailed             = errors.NewWithHttp("services.user.login_failed", 30101, http.StatusBadRequest)
+	ErrInvalidUsernamePassword = errors.NewWithHttp("services.user.invalid_username", 30102, http.StatusBadRequest)
+	ErrPasswordHashingFailed   = errors.NewWithHttp("services.user.password_hashing_failed", 30103, http.StatusInternalServerError)
+	ErrMobileMismatch          = errors.NewWithHttp("services.user.mobile_mismatch", 30104, http.StatusBadRequest)
+	ErrWrongVerificationCode   = errors.NewWithHttp("services.user.wrong_verificationCode", 30105, http.StatusBadRequest)
 )

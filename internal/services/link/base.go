@@ -39,10 +39,10 @@ type Service struct {
 	linkRepo   linkRepository
 	visitRepo  visitRepository
 	cfg        configs.LinkService
-	linksCache *cache.RedisCache
+	linksCache *cache.LinkRedisCache
 }
 
-func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository, linksCache *cache.RedisCache) Service {
+func New(log *log.Logger, cfg configs.LinkService, linkRepo linkRepository, visitRepo visitRepository, linksCache *cache.LinkRedisCache) Service {
 	return Service{
 		log:        log,
 		cfg:        cfg,

@@ -31,6 +31,18 @@ func (r Repository) Create(ctx context.Context, user entities.User) (entities.Us
 	return user, nil
 }
 
+func (r Repository) ReturnById(ctx context.Context, id uint) (entities.User, error) {
+	user := entities.User{}
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("id = ?", id).First(&user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return user, ErrUserNotFound
+		}
+		return user, ErrFailedToFetchUser.AddOriginalError(err)
+	}
+	return user, nil
+}
+
 func (r Repository) ReturnByMobile(ctx context.Context, mobile string) (entities.User, error) {
 	user := entities.User{}
 	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("mobile = ?", mobile).First(&user).Error
@@ -53,4 +65,12 @@ func (r Repository) ReturnByEmail(ctx context.Context, email string) (entities.U
 		return user, ErrFailedToFetchUser.AddOriginalError(err)
 	}
 	return user, nil
+}
+
+func (r Repository) Update(ctx context.Context, user entities.User) error {
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("id = ?", user.ID).Updates(user).First(&user).Error
+	if err != nil {
+		return ErrFailedToFetchUser.AddOriginalError(err)
+	}
+	return nil
 }

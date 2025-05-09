@@ -7,6 +7,7 @@ import (
 	authController "github.com/h-varmazyar/p3o/internal/controllers/auth"
 	dashboardController "github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	linkController "github.com/h-varmazyar/p3o/internal/controllers/link"
+	userController "github.com/h-varmazyar/p3o/internal/controllers/user"
 	linkRepository "github.com/h-varmazyar/p3o/internal/repositories/link"
 	userRepository "github.com/h-varmazyar/p3o/internal/repositories/user"
 	visitRepository "github.com/h-varmazyar/p3o/internal/repositories/visit"
@@ -46,6 +47,7 @@ type dependencies struct {
 		AuthController      authController.Controller
 		LinkController      linkController.Controller
 		DashboardController dashboardController.Controller
+		UserController      userController.Controller
 	}
 	Routers struct {
 		Router      router.Router
@@ -55,7 +57,8 @@ type dependencies struct {
 		}
 	}
 	Cache struct {
-		LinkCache *cache.RedisCache
+		LinkCache             *cache.LinkRedisCache
+		VerificationCodeCache *cache.VerificationCodeRedisCache
 	}
 }
 
@@ -98,12 +101,19 @@ var repositoryDependencies = func(dep *dependencies) (err error) {
 }
 
 var cacheDependencies = func(dep *dependencies) (err error) {
-	dep.Cache.LinkCache, err = cache.NewRedisCache(dep.Log, dep.Cfg.Redis)
+	dep.Cache.LinkCache, err = cache.NewLinkRedisCache(dep.Log, dep.Cfg.Redis)
+	if err != nil {
+		return
+	}
+	dep.Cache.VerificationCodeCache, err = cache.NewVerificationCodeRedisCache(dep.Log, dep.Cfg.Redis)
+	if err != nil {
+		return
+	}
 	return
 }
 
 var serviceDependencies = func(dep *dependencies) (err error) {
-	dep.Services.User, err = userService.New(dep.Log, dep.Cfg.UserService, dep.Repositories.User)
+	dep.Services.User, err = userService.New(dep.Log, dep.Cfg.UserService, dep.Repositories.User, dep.Cache.VerificationCodeCache)
 	if err != nil {
 		return
 	}
@@ -114,7 +124,7 @@ var serviceDependencies = func(dep *dependencies) (err error) {
 
 var routersDependencies = func(dep *dependencies) (err error) {
 	dep.Routers.Middlewares.PublicAuth = middlewares.NewPublicAuthMiddleware(dep.Log)
-	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Controllers.DashboardController, dep.Routers.Middlewares.PublicAuth)
+	dep.Routers.V1 = v1.New(dep.Controllers.AuthController, dep.Controllers.LinkController, dep.Controllers.DashboardController, dep.Controllers.UserController, dep.Routers.Middlewares.PublicAuth)
 	dep.Routers.Router = router.New(dep.Log, dep.Routers.V1, dep.Services.Link)
 	return
 }

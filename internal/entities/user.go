@@ -1,8 +1,8 @@
 package entities
 
 import (
+	"database/sql"
 	"gorm.io/gorm"
-	"time"
 )
 
 type UserRole string
@@ -20,7 +20,7 @@ type User struct {
 	Mobile         string   `gorm:"unique" json:"mobile"`
 	HashedPassword string   `json:"-"`
 	Role           UserRole `json:"role"`
-	VerifiedAt     *time.Time
+	VerifiedAt     sql.NullTime
 }
 
 func (r UserRole) ToString() string {

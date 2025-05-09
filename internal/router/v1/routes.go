@@ -5,6 +5,7 @@ import (
 	"github.com/h-varmazyar/p3o/internal/controllers/auth"
 	"github.com/h-varmazyar/p3o/internal/controllers/dashboard"
 	"github.com/h-varmazyar/p3o/internal/controllers/link"
+	"github.com/h-varmazyar/p3o/internal/controllers/user"
 	"github.com/h-varmazyar/p3o/internal/router/middlewares"
 )
 
@@ -13,14 +14,16 @@ type Router struct {
 	authController       auth.Controller
 	dashboardController  dashboard.Controller
 	linksController      link.Controller
+	usersController      user.Controller
 	publicAuthMiddleware middlewares.PublicAuthMiddleware
 }
 
-func New(authController auth.Controller, linkController link.Controller, dashboardController dashboard.Controller, publicAuthMiddleware middlewares.PublicAuthMiddleware) Router {
+func New(authController auth.Controller, linkController link.Controller, dashboardController dashboard.Controller, usersController user.Controller, publicAuthMiddleware middlewares.PublicAuthMiddleware) Router {
 	return Router{
 		authController:       authController,
 		linksController:      linkController,
 		dashboardController:  dashboardController,
+		usersController:      usersController,
 		publicAuthMiddleware: publicAuthMiddleware,
 	}
 }
@@ -31,7 +34,6 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 	{
 		authRouter := v1Router.Group("/auth")
 		authRouter.POST("/login", r.authController.Login)
-		authRouter.PUT("/verify", r.authController.Verify)
 		authRouter.DELETE("/logout", r.authController.Logout)
 		authRouter.DELETE("/register", r.authController.Register)
 	}
@@ -54,11 +56,14 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		dashboardRouter.GET("/visit-chart", r.dashboardController.VisitChart)
 		dashboardRouter.GET("/info", r.dashboardController.Info)
 	}
-	//{
-	//	userRouter := v1Router.Group("/users")
-	//	userRouter.GET("/info", r.usersController.GetInfo)
-	//	userRouter.PATCH("/change-password", r.usersController.ChangePassword)
-	//}
+	{
+		userRouter := v1Router.Group("/users")
+		userRouter.GET("/info", r.usersController.GetInfo)
+		userRouter.PUT("/edit", r.usersController.Edit)
+		userRouter.POST("/verify", r.usersController.Verify)
+		userRouter.POST("/submit-verification", r.usersController.SubmitVerificationCode)
+		userRouter.PATCH("/change-password", r.usersController.ChangePassword)
+	}
 	//{
 	//	visitsController := v1Router.Group("/visits")
 	//	visitsController.GET("/history", r.visitsController.History)

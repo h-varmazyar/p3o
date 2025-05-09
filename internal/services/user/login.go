@@ -41,6 +41,6 @@ func (s Service) Login(ctx context.Context, username, password string) (domain.T
 	return domain.Tokens{
 		Token:      jwtToken.AccessToken,
 		ExpireAt:   jwtToken.ExpiresAt,
-		IsVerified: user.VerifiedAt != nil,
+		IsVerified: user.VerifiedAt.Valid,
 	}, nil
 }
