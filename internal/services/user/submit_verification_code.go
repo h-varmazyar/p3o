@@ -14,19 +14,22 @@ func (s Service) SubmitVerificationCode(ctx context.Context, req domain.SubmitVe
 		return err
 	}
 
-	if user.Mobile != req.Mobile {
-		return errors.ErrMobileMismatch
-	}
-
-	code, err := s.verificationCodeCache.Get(user.ID)
+	vc, err := s.verificationCodeCache.Get(user.ID)
 	if err != nil {
 		return err
 	}
 
-	if code != req.Code {
+	if vc.Code != req.Code {
 		return errors.ErrWrongVerificationCode
 	}
 
+	if vc.Mobile != req.Mobile {
+		return errors.ErrWrongVerificationCode
+	}
+
+	if vc.Mobile != req.Mobile {
+		user.Mobile = vc.Mobile
+	}
 	user.VerifiedAt = sql.NullTime{Time: time.Now(), Valid: true}
 
 	if err = s.userRepo.Update(ctx, user); err != nil {

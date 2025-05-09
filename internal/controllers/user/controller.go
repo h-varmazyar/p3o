@@ -12,7 +12,7 @@ type UserService interface {
 	EditUser(ctx context.Context, req domain.EditUserReq) error
 	Get(ctx context.Context, userId uint) (domain.UserInfo, error)
 	SubmitVerificationCode(ctx context.Context, req domain.SubmitVerificationCodeReq) error
-	Verify(ctx context.Context, userId uint) (domain.VerifyUserResp, error)
+	Verify(ctx context.Context, req domain.VerifyUserReq) (domain.VerifyUserResp, error)
 }
 
 type Controller struct {

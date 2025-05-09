@@ -25,4 +25,5 @@ var (
 	ErrPasswordHashingFailed   = errors.NewWithHttp("services.user.password_hashing_failed", 30103, http.StatusInternalServerError)
 	ErrMobileMismatch          = errors.NewWithHttp("services.user.mobile_mismatch", 30104, http.StatusBadRequest)
 	ErrWrongVerificationCode   = errors.NewWithHttp("services.user.wrong_verificationCode", 30105, http.StatusBadRequest)
+	ErrUserMobileAvailable     = errors.NewWithHttp("services.user.user_mobile_available", 30106, http.StatusBadRequest)
 )

@@ -29,6 +29,11 @@ type SubmitVerificationCodeReq struct {
 	Mobile string `json:"mobile"`
 }
 
+type VerifyUserReq struct {
+	Mobile string `json:"mobile"`
+	UserId uint   `json:"user_id"`
+}
+
 type VerifyUserResp struct {
 	ValidUntil time.Time `json:"valid_until"`
 }
