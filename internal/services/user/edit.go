@@ -13,7 +13,7 @@ func (s Service) EditUser(ctx context.Context, req domain.EditUserReq) error {
 
 	user.LastName = req.LastName
 	user.FirstName = req.FirstName
-	user.Email = req.Email
+	user.Email = &req.Email
 
 	if err = s.userRepo.Update(ctx, user); err != nil {
 		return err

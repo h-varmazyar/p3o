@@ -53,7 +53,7 @@ func (s Service) fetchUser(ctx context.Context, username string) (entities.User,
 		user, err = s.userRepo.ReturnByEmail(ctx, username)
 		if err != nil {
 			if sysErr.As(err, &errors.ErrUserNotFound) {
-				user.Email = username
+				user.Email = &username
 				return user, false, nil
 			}
 			return user, false, err
