@@ -22,8 +22,9 @@ func (s Service) Register(ctx context.Context, req domain.RegisterUserReq) (doma
 	//todo: send random via message
 
 	vc := cache.VerificationCode{
-		Code:   otpCode,
-		Mobile: req.Mobile,
+		Code:     otpCode,
+		Mobile:   req.Mobile,
+		Password: req.Password,
 	}
 	if err = s.verificationCodeCache.Set(req.Mobile, vc, expirationDuration); err != nil {
 		return domain.RegisterResp{}, err

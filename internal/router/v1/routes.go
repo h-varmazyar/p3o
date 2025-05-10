@@ -35,7 +35,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		authRouter := v1Router.Group("/auth")
 		authRouter.POST("/login", r.authController.Login)
 		authRouter.DELETE("/logout", r.authController.Logout)
-		authRouter.DELETE("/register", r.authController.Register)
+		authRouter.POST("/register", r.authController.Register)
 		authRouter.POST("/verify", r.authController.Verify)
 	}
 	{

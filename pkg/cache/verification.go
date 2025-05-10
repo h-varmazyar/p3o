@@ -26,7 +26,7 @@ func NewVerificationCodeRedisCache(log *log.Logger, cfg configs.Redis) (*Verific
 	client := redis.NewClient(&redis.Options{
 		Addr:     cfg.Address,
 		Password: cfg.Password,
-		DB:       cfg.LinkCacheDB,
+		DB:       cfg.RegisterOTPDB,
 		PoolSize: 10,
 	})
 

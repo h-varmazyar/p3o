@@ -30,10 +30,11 @@ func load() (Configs, error) {
 			IsSSLEnable: loadBool("DB_SSL_ENABLE"),
 		},
 		Redis: Redis{
-			Address:     loadString("REDIS_ADDRESS"),
-			Username:    loadString("REDIS_USERNAME"),
-			Password:    loadString("REDIS_PASSWORD"),
-			LinkCacheDB: loadInt("REDIS_LINK_CACHE_DB"),
+			Address:       loadString("REDIS_ADDRESS"),
+			Username:      loadString("REDIS_USERNAME"),
+			Password:      loadString("REDIS_PASSWORD"),
+			LinkCacheDB:   loadInt("REDIS_LINK_CACHE_DB"),
+			RegisterOTPDB: loadInt("REDIS_REGISTER_OTP_DB"),
 		},
 		Server: Server{
 			HttpAddress: loadString("SERVER_HOST"),
