@@ -17,7 +17,7 @@ func (s Service) Register(ctx context.Context, req domain.RegisterUserReq) (doma
 		return domain.RegisterResp{}, errors.ErrUserMobileAvailable
 	}
 
-	otpCode := utils.RandomOTP(5)
+	otpCode := utils.RandomOTP(6)
 
 	//todo: send random via message
 
@@ -31,7 +31,7 @@ func (s Service) Register(ctx context.Context, req domain.RegisterUserReq) (doma
 	}
 
 	resp := domain.RegisterResp{
-		ExpirationDuration: expirationDuration,
+		ExpirationDuration: expirationDuration / time.Second,
 	}
 	return resp, nil
 }
