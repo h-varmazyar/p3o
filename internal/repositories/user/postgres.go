@@ -64,7 +64,7 @@ func (r Repository) ReturnByMobile(ctx context.Context, mobile string) (entities
 
 func (r Repository) ReturnByEmail(ctx context.Context, email string) (entities.User, error) {
 	user := entities.User{}
-	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("email = ?", email).First(&user).Error
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where(repositories.Where(ColumnEmail), email).First(&user).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return user, ErrUserNotFound
@@ -75,7 +75,7 @@ func (r Repository) ReturnByEmail(ctx context.Context, email string) (entities.U
 }
 
 func (r Repository) Update(ctx context.Context, user entities.User) error {
-	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where("id = ?", user.ID).Updates(user).First(&user).Error
+	err := r.DB.WithContext(ctx).Model(new(entities.User)).Where(repositories.Where(ColumnId), user.ID).Updates(user).First(&user).Error
 	if err != nil {
 		return ErrFailedToFetchUser.AddOriginalError(err)
 	}

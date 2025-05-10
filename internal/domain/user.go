@@ -23,17 +23,16 @@ type EditUserReq struct {
 	Email     string `json:"email"`
 }
 
-type SubmitVerificationCodeReq struct {
-	UserId uint   `json:"user_id"`
-	Code   string `json:"code"`
-	Mobile string `json:"mobile"`
+type RegisterUserReq struct {
+	Password string `json:"code"`
+	Mobile   string `json:"mobile"`
 }
 
 type VerifyUserReq struct {
 	Mobile string `json:"mobile"`
-	UserId uint   `json:"user_id"`
+	Code   string `json:"code"`
 }
 
-type VerifyUserResp struct {
-	ValidUntil time.Time `json:"valid_until"`
+type RegisterResp struct {
+	ExpirationDuration time.Duration `json:"expiration_duration"`
 }

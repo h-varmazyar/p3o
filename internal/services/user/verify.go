@@ -2,37 +2,55 @@ package user
 
 import (
 	"context"
-	sysErr "errors"
+	"database/sql"
 	"github.com/h-varmazyar/p3o/internal/domain"
+	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/h-varmazyar/p3o/internal/errors"
-	userRepository "github.com/h-varmazyar/p3o/internal/repositories/user"
-	"github.com/h-varmazyar/p3o/pkg/cache"
+	"github.com/h-varmazyar/p3o/pkg/jwt"
 	"github.com/h-varmazyar/p3o/pkg/utils"
+	"time"
 )
 
-func (s Service) Verify(ctx context.Context, req domain.VerifyUserReq) (domain.VerifyUserResp, error) {
-	user, err := s.userRepo.ReturnById(ctx, req.UserId)
+func (s Service) Verify(ctx context.Context, req domain.VerifyUserReq) (domain.Tokens, error) {
+	vc, err := s.verificationCodeCache.Get(req.Mobile)
 	if err != nil {
-		return domain.VerifyUserResp{}, err
+		return domain.Tokens{}, err
 	}
 
-	tempUser, err := s.userRepo.ReturnByMobile(ctx, req.Mobile)
-	if err != nil && !sysErr.Is(err, userRepository.ErrUserNotFound) {
-		return domain.VerifyUserResp{}, err
-	} else if tempUser.ID != user.ID {
-		return domain.VerifyUserResp{}, errors.ErrUserMobileAvailable
+	if vc.Code != req.Code {
+		return domain.Tokens{}, errors.ErrWrongVerificationCode
 	}
 
-	otpCode := utils.RandomOTP(5)
-
-	//todo: send random via message
-
-	vc := cache.VerificationCode{
-		Code:   otpCode,
-		Mobile: req.Mobile,
+	if vc.Mobile != req.Mobile {
+		return domain.Tokens{}, errors.ErrWrongVerificationCode
 	}
-	if err = s.verificationCodeCache.Set(req.UserId, vc); err != nil {
-		return domain.VerifyUserResp{}, err
+
+	_, err = s.userRepo.ReturnByMobile(ctx, req.Mobile)
+	if err == nil {
+		return domain.Tokens{}, errors.ErrUserMobileAvailable
 	}
-	return domain.VerifyUserResp{}, nil
+
+	hashedPassword, err := utils.GenerateHashPassword(vc.Password)
+	if err != nil {
+		return domain.Tokens{}, err
+	}
+
+	user := entities.User{
+		Mobile:         req.Mobile,
+		HashedPassword: hashedPassword,
+		Role:           entities.RoleUser,
+	}
+	user.VerifiedAt = sql.NullTime{Time: time.Now(), Valid: true}
+
+	if user, err = s.userRepo.Create(ctx, user); err != nil {
+		return domain.Tokens{}, err
+	}
+
+	jwtToken := jwt.GenerateToken(user.ID)
+
+	return domain.Tokens{
+		Token:      jwtToken.AccessToken,
+		ExpireAt:   jwtToken.ExpiresAt,
+		IsVerified: user.VerifiedAt.Valid,
+	}, nil
 }

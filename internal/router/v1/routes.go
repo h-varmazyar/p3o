@@ -36,6 +36,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		authRouter.POST("/login", r.authController.Login)
 		authRouter.DELETE("/logout", r.authController.Logout)
 		authRouter.DELETE("/register", r.authController.Register)
+		authRouter.POST("/verify", r.authController.Verify)
 	}
 	{
 		linkRouter := v1Router.Group("/links").Use(r.publicAuthMiddleware.Handle)
@@ -59,9 +60,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 	{
 		userRouter := v1Router.Group("/users").Use(r.publicAuthMiddleware.Handle)
 		userRouter.GET("/info", r.usersController.GetInfo)
-		userRouter.PUT("/edit", r.usersController.Edit)
-		userRouter.POST("/verify", r.usersController.Verify)
-		userRouter.POST("/submit-verification", r.usersController.SubmitVerificationCode)
+		userRouter.PATCH("/edit", r.usersController.Edit)
 		userRouter.PATCH("/change-password", r.usersController.ChangePassword)
 	}
 	//{

@@ -10,6 +10,8 @@ var ()
 type UserService interface {
 	Login(ctx context.Context, username, password string) (domain.Tokens, error)
 	Logout(ctx context.Context, username string) error
+	Register(ctx context.Context, req domain.RegisterUserReq) (domain.RegisterResp, error)
+	Verify(ctx context.Context, req domain.VerifyUserReq) (domain.Tokens, error)
 }
 
 type Controller struct {

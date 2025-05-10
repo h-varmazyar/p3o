@@ -3,7 +3,6 @@ package cache
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/goccy/go-json"
 	"github.com/h-varmazyar/p3o/configs"
 	"github.com/redis/go-redis/v9"
@@ -11,11 +10,10 @@ import (
 	"time"
 )
 
-const expirationDuration = time.Minute * 2
-
 type VerificationCode struct {
-	Code   string `json:"code"`
-	Mobile string `json:"mobile"`
+	Code     string `json:"code"`
+	Mobile   string `json:"mobile"`
+	Password string `json:"password"`
 }
 type VerificationCodeRedisCache struct {
 	log    *log.Logger
@@ -48,8 +46,8 @@ func NewVerificationCodeRedisCache(log *log.Logger, cfg configs.Redis) (*Verific
 	}, nil
 }
 
-func (c *VerificationCodeRedisCache) Get(userId uint) (VerificationCode, error) {
-	val, err := c.client.Get(c.ctx, fmt.Sprint(userId)).Result()
+func (c *VerificationCodeRedisCache) Get(key string) (VerificationCode, error) {
+	val, err := c.client.Get(c.ctx, key).Result()
 	if errors.Is(err, redis.Nil) {
 		return VerificationCode{}, nil
 	} else if err != nil {
@@ -64,10 +62,10 @@ func (c *VerificationCodeRedisCache) Get(userId uint) (VerificationCode, error) 
 	return vc, nil
 }
 
-func (c *VerificationCodeRedisCache) Set(userId uint, codeValue VerificationCode) error {
+func (c *VerificationCodeRedisCache) Set(key string, codeValue VerificationCode, expirationDuration time.Duration) error {
 	encoded, err := json.Marshal(codeValue)
 	if err != nil {
 		return err
 	}
-	return c.client.SetEx(c.ctx, fmt.Sprint(userId), string(encoded), expirationDuration).Err() // No TTL, LFU handles eviction
+	return c.client.SetEx(c.ctx, key, string(encoded), expirationDuration).Err() // No TTL, LFU handles eviction
 }
