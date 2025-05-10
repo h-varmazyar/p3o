@@ -4,17 +4,19 @@ import (
 	"context"
 	"fmt"
 	"github.com/h-varmazyar/p3o/internal/domain"
+	"github.com/h-varmazyar/p3o/pkg/pagination"
 )
 
-func (s Service) List(ctx context.Context, userId uint) (domain.LinkList, error) {
-	links, err := s.linkRepo.List(ctx, userId)
+func (s Service) List(ctx context.Context, userId uint, paginator pagination.Paginator) (domain.LinkList, error) {
+	links, linkPagination, err := s.linkRepo.List(ctx, userId, paginator)
 	if err != nil {
 		s.log.WithError(err).Error("user link list")
 		return domain.LinkList{}, err
 	}
 
 	all := domain.LinkList{
-		Links: make([]domain.Link, len(links)),
+		Links:      make([]domain.Link, len(links)),
+		Pagination: linkPagination,
 	}
 
 	for i, link := range links {

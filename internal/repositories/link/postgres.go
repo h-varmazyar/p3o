@@ -5,6 +5,7 @@ import (
 	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/h-varmazyar/p3o/internal/errors"
 	"github.com/h-varmazyar/p3o/internal/repositories"
+	"github.com/h-varmazyar/p3o/pkg/pagination"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
@@ -75,14 +76,17 @@ func (r Repository) ReturnByKey(ctx context.Context, key string) (entities.Link,
 	return link, nil
 }
 
-func (r Repository) List(ctx context.Context, userId uint) ([]entities.Link, error) {
+func (r Repository) List(ctx context.Context, userId uint, paginator pagination.Paginator) ([]entities.Link, pagination.Pagination, error) {
 	links := make([]entities.Link, 0)
 
-	if err := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Find(&links).Error; err != nil {
-		return nil, errors.ErrUserHasNoLinks.AddOriginalError(err)
+	count := int64(0)
+
+	tx := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Count(&count)
+	if err := tx.Limit(paginator.Limit()).Offset(paginator.Offset()).Find(&links).Error; err != nil {
+		return nil, pagination.Pagination{}, errors.ErrUserHasNoLinks.AddOriginalError(err)
 	}
 
-	return links, nil
+	return links, paginator.NextPage(count), nil
 }
 
 func (r Repository) Update(ctx context.Context, link entities.Link) error {

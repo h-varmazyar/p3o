@@ -14,9 +14,12 @@ func (s Service) Get(ctx context.Context, userId uint) (domain.UserInfo, error) 
 	resp := domain.UserInfo{
 		FirstName:  user.FirstName,
 		LastName:   user.LastName,
-		Email:      *user.Email,
 		Mobile:     user.Mobile,
 		IsVerified: user.VerifiedAt.Valid,
+	}
+
+	if user.Email != nil {
+		resp.Email = *user.Email
 	}
 
 	return resp, nil

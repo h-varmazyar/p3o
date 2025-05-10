@@ -3,6 +3,7 @@ package link
 import (
 	"bytes"
 	"context"
+	"github.com/h-varmazyar/p3o/pkg/pagination"
 	"io"
 	"os"
 	"regexp"
@@ -19,7 +20,7 @@ import (
 type linkRepository interface {
 	Create(ctx context.Context, link entities.Link) (entities.Link, error)
 	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
-	List(ctx context.Context, userId uint) ([]entities.Link, error)
+	List(ctx context.Context, userId uint, paginator pagination.Paginator) ([]entities.Link, pagination.Pagination, error)
 	Update(ctx context.Context, link entities.Link) error
 	TotalLinkCount(ctx context.Context, userId uint) (int64, error)
 	TotalVisits(ctx context.Context, userId uint) (int64, error)

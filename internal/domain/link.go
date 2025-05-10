@@ -1,6 +1,9 @@
 package domain
 
-import "time"
+import (
+	"github.com/h-varmazyar/p3o/pkg/pagination"
+	"time"
+)
 
 type LinkCreateReq struct {
 	UserId    uint   `json:"user_id"`
@@ -38,7 +41,8 @@ type LinkDetails struct {
 }
 
 type LinkList struct {
-	Links []Link `json:"links"`
+	Links      []Link                `json:"links"`
+	Pagination pagination.Pagination `json:"pagination"`
 }
 
 type ChartItem struct {
