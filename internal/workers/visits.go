@@ -67,9 +67,7 @@ func (w VisitsWorker) handleVisit(ctx context.Context, visit entities.Visit) err
 	}
 
 	link.TotalVisit++
-
-	err = w.visitRepo.Update(ctx, visit)
-	if err != nil {
+	if err = w.linkRepo.Update(ctx, link); err != nil {
 		return err
 	}
 
@@ -77,7 +75,10 @@ func (w VisitsWorker) handleVisit(ctx context.Context, visit entities.Visit) err
 		Time:  time.Now(),
 		Valid: true,
 	}
-	_ = w.linkRepo.Update(ctx, link)
+	err = w.visitRepo.Update(ctx, visit)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
