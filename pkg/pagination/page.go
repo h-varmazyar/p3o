@@ -2,6 +2,7 @@ package pagination
 
 import (
 	"github.com/gin-gonic/gin"
+	"math"
 	"strconv"
 )
 
@@ -13,6 +14,7 @@ type Paginator struct {
 type Pagination struct {
 	CurrentPage int   `json:"current_page"`
 	PageSize    int   `json:"page_size"`
+	TotalPages  int   `json:"total_pages"`
 	Total       int64 `json:"total"`
 }
 
@@ -32,8 +34,9 @@ func (p Paginator) Limit() int {
 
 func (p Paginator) NextPage(total int64) Pagination {
 	return Pagination{
-		CurrentPage: p.Page + 1,
+		CurrentPage: p.Page,
 		PageSize:    p.PageSize,
+		TotalPages:  int(math.Ceil(float64(total / int64(p.PageSize)))),
 		Total:       total,
 	}
 }
