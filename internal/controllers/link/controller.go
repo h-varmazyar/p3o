@@ -3,7 +3,6 @@ package link
 import (
 	"context"
 	"github.com/h-varmazyar/p3o/internal/domain"
-	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/h-varmazyar/p3o/pkg/pagination"
 )
 
@@ -20,13 +19,11 @@ type linkService interface {
 }
 
 type Controller struct {
-	VisitChan   chan workers.VisitRecord
 	linkService linkService
 }
 
-func New(linkSrv linkService, visitChan chan workers.VisitRecord) Controller {
+func New(linkSrv linkService) Controller {
 	return Controller{
-		VisitChan:   visitChan,
 		linkService: linkSrv,
 	}
 }

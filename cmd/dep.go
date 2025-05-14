@@ -33,7 +33,6 @@ type dependencies struct {
 	DB           *gorm.DB
 	Redis        *redis.Client
 	Gin          *gin.Engine
-	VisitChan    chan workers.VisitRecord
 	Repositories struct {
 		User  userRepository.Repository
 		Link  linkRepository.Repository
@@ -60,6 +59,9 @@ type dependencies struct {
 		LinkCache             *cache.LinkRedisCache
 		VerificationCodeCache *cache.VerificationCodeRedisCache
 	}
+	Workers struct {
+		VisitWorker *workers.VisitsWorker
+	}
 }
 
 var generalDependencies = func(dep *dependencies) (err error) {
@@ -81,14 +83,13 @@ var infraDependencies = func(dep *dependencies) (err error) {
 	}
 	dep.Redis = initializeRedis(dep.Cfg.Redis)
 	dep.Gin = initializeGin(dep.Log)
-	dep.VisitChan = initializeVisitChannel()
 
 	return
 }
 
 var controllerDependencies = func(dep *dependencies) (err error) {
 	dep.Controllers.AuthController = authController.New(dep.Services.User)
-	dep.Controllers.LinkController = linkController.New(dep.Services.Link, dep.VisitChan)
+	dep.Controllers.LinkController = linkController.New(dep.Services.Link)
 	dep.Controllers.DashboardController = dashboardController.New(dep.Services.Link)
 	dep.Controllers.UserController = userController.New(dep.Services.User)
 	return
@@ -110,6 +111,12 @@ var cacheDependencies = func(dep *dependencies) (err error) {
 	if err != nil {
 		return
 	}
+	return
+}
+
+var workerDependencies = func(dep *dependencies) (err error) {
+	dep.Workers.VisitWorker = workers.NewVisitWorker(dep.Log, dep.Repositories.Visit, dep.Repositories.Link)
+
 	return
 }
 
@@ -156,6 +163,10 @@ func InjectDependencies() (dep dependencies, err error) {
 	}
 
 	if err = routersDependencies(&dep); err != nil {
+		return
+	}
+
+	if err = workerDependencies(&dep); err != nil {
 		return
 	}
 

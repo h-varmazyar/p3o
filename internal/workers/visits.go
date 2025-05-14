@@ -2,80 +2,82 @@ package workers
 
 import (
 	"context"
-	log "github.com/sirupsen/logrus"
+	"database/sql"
 	"github.com/h-varmazyar/p3o/internal/entities"
+	log "github.com/sirupsen/logrus"
+	"time"
 )
 
 type linkRepository interface {
-	Visit(ctx context.Context, linkId uint) error
+	Update(context.Context, entities.Link) error
 	ReturnById(ctx context.Context, id uint) (entities.Link, error)
 }
 
 type visitRepository interface {
-	Create(ctx context.Context, visit entities.Visit) (entities.Visit, error)
-}
-
-type VisitRecord struct {
-	LinkId    uint
-	IpAddress string
-	OS entities.OS
-	Browser entities.Browser
+	GetUnhandled(ctx context.Context) ([]entities.Visit, error)
+	Update(ctx context.Context, visit entities.Visit) error
 }
 
 type VisitsWorker struct {
 	log       *log.Logger
-	visitChan chan VisitRecord
 	linkRepo  linkRepository
 	visitRepo visitRepository
 }
 
-func NewVisitWorker(log *log.Logger, visitChan chan VisitRecord) (*VisitsWorker, error) {
+func NewVisitWorker(log *log.Logger, visitRepo visitRepository, linkRepo linkRepository) *VisitsWorker {
 	worker := &VisitsWorker{
 		log:       log,
-		visitChan: visitChan,
-		//linkRepo:  p.LinkRepo,
+		linkRepo:  linkRepo,
+		visitRepo: visitRepo,
 	}
 
-	if err := worker.start(); err != nil {
-		return nil, err
-	}
+	go worker.start()
 
-	//result := Result{
-	//	Worker: worker,
-	//}
-	return worker, nil
+	return worker
 }
 
-func (w VisitsWorker) start() error {
+func (w VisitsWorker) start() {
 	w.log.Infof("************** visit worker started")
-	go func() {
-		for record := range w.visitChan {
-			if err := w.linkRepo.Visit(context.Background(), record.LinkId); err != nil {
-				w.log.WithError(err).Errorf("failed to increase visit of %v", record.LinkId)
-			}
-		}
-	}()
+	ticker := time.NewTicker(time.Minute)
 
-	return nil
+	for {
+		select {
+		case <-ticker.C:
+			visits, err := w.visitRepo.GetUnhandled(context.Background())
+			if err != nil {
+				w.log.WithError(err).Error("failed to get unhandled visits")
+				continue
+			}
+
+			for _, visit := range visits {
+				err = w.handleVisit(context.Background(), visit)
+				if err != nil {
+					w.log.WithError(err).Error("failed to handle visit")
+				}
+			}
+
+		}
+	}
 }
 
-func (w VisitsWorker) visit(ctx context.Context, record VisitRecord) error {
-	link, err := w.linkRepo.ReturnById(ctx, record.LinkId)
+func (w VisitsWorker) handleVisit(ctx context.Context, visit entities.Visit) error {
+	link, err := w.linkRepo.ReturnById(ctx, visit.LinkId)
 	if err != nil {
 		return err
 	}
 
-	visit := entities.Visit{
-		LinkId:link.ID,
-		UserId: link.OwnerId,
-		OS      : record.OS,
-		Browser :record.Browser,
-		IP      : record.IpAddress,
-	}
+	link.TotalVisit++
 
-	if _, err = w.visitRepo.Create(ctx, visit); err!=nil {
+	err = w.visitRepo.Update(ctx, visit)
+	if err != nil {
 		return err
 	}
+
+	visit.HandledAt = sql.NullTime{
+		Time:  time.Now(),
+		Valid: true,
+	}
+	_ = w.linkRepo.Update(ctx, link)
 
 	return nil
 }

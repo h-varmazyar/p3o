@@ -102,3 +102,13 @@ func (r Repository) VisitCount(ctx context.Context, userId uint, from, to time.T
 	}
 	return count, nil
 }
+
+func (r Repository) GetUnhandled(ctx context.Context) ([]entities.Visit, error) {
+	visits := make([]entities.Visit, 0)
+	err := r.DB.WithContext(ctx).Model(&entities.Link{}).Where("handled_at is null").Limit(100).Find(&visits).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return visits, nil
+}

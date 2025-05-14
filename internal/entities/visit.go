@@ -1,6 +1,7 @@
 package entities
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -35,11 +36,12 @@ type Visit struct {
 	ID           string `gorm:"primarykey"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
+	HandledAt    sql.NullTime
+	RedirectedAt time.Time
 	LinkId       uint
 	UserId       uint
 	OS           OS
 	Browser      Browser
 	IP           string
-	RedirectedAt time.Time
 	Status       VisitStatus
 }

@@ -5,7 +5,6 @@ import (
 	"github.com/gin-gonic/gin"
 	gormext "github.com/h-varmazyar/gopack/gorm"
 	"github.com/h-varmazyar/p3o/configs"
-	"github.com/h-varmazyar/p3o/internal/workers"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
@@ -157,8 +156,4 @@ func initializeGin(log *log.Logger) *gin.Engine {
 	gin.DefaultErrorWriter = log.Writer()
 	g := gin.Default()
 	return g
-}
-
-func initializeVisitChannel() chan workers.VisitRecord {
-	return make(chan workers.VisitRecord, 10000)
 }

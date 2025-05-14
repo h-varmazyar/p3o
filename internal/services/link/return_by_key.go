@@ -39,7 +39,7 @@ func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, erro
 
 	_, err = s.visitRepo.Create(ctx, visit)
 	if err != nil {
-		return domain.Link{}, err
+		s.log.WithError(err)
 	}
 
 	return domain.Link{
