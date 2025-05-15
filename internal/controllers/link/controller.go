@@ -9,6 +9,7 @@ import (
 type linkService interface {
 	Create(ctx context.Context, link domain.LinkCreateReq) (domain.LinkCreateResp, error)
 	List(ctx context.Context, userId uint, paginator pagination.Paginator) (domain.LinkList, error)
+	Edit(ctx context.Context, req domain.EditLinkReq) error
 	Activate(ctx context.Context, userId uint, key string) error
 	Deactivate(ctx context.Context, userId uint, key string) error
 	TotalLinkCount(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)

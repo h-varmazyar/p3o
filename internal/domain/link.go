@@ -37,7 +37,7 @@ type LinkDetails struct {
 	ExpireAt            time.Time `json:"expired_at"`
 	CreatedAt           time.Time `json:"created_at"`
 	ProtectedByPassword bool      `json:"protected_by_password"`
-	MaxVisit            uint32    `json:"max_visit"`
+	MaxVisit            uint      `json:"max_visit"`
 }
 
 type LinkList struct {
@@ -48,4 +48,14 @@ type LinkList struct {
 type ChartItem struct {
 	Count     uint   `json:"count"`
 	TimeLabel string `json:"time_label"`
+}
+
+type EditLinkReq struct {
+	UserId    uint       `json:"user_id"`
+	MaxVisit  uint       `json:"max_visit"`
+	ExpireAt  *time.Time `json:"expire_at"`
+	Password  *string    `json:"password"`
+	Key       string     `json:"key"`
+	Status    string     `json:"status"`
+	Immediate bool       `json:"immediate"`
 }

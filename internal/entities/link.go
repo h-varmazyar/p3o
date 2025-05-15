@@ -35,5 +35,5 @@ type Link struct {
 	ExpireAt   sql.NullTime
 	Immediate  bool
 	Password   string
-	MaxVisit   uint32
+	MaxVisit   uint
 }

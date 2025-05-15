@@ -43,7 +43,10 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter.POST("", r.linksController.Create)
 		linkRouter.GET("", r.linksController.List)
 		linkRouter.GET("/:key", r.linksController.Fetch)
+		linkRouter.PATCH("/:key", r.linksController.Edit)
 		linkRouter.DELETE("/:key", r.linksController.Delete)
+
+		//todo: check usage
 		linkRouter.GET("/:key/status", r.linksController.Status)
 		linkRouter.PATCH("/:key/activate", r.linksController.Activate)
 		linkRouter.PATCH("/:key/deactivate", r.linksController.Deactivate)
