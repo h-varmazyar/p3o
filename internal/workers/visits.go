@@ -66,9 +66,11 @@ func (w VisitsWorker) handleVisit(ctx context.Context, visit entities.Visit) err
 		return err
 	}
 
-	link.TotalVisit++
-	if err = w.linkRepo.Update(ctx, link); err != nil {
-		return err
+	if visit.Status == entities.VisitStatusCompleted {
+		link.TotalVisit++
+		if err = w.linkRepo.Update(ctx, link); err != nil {
+			return err
+		}
 	}
 
 	visit.HandledAt = sql.NullTime{

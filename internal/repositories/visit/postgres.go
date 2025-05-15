@@ -105,7 +105,11 @@ func (r Repository) VisitCount(ctx context.Context, userId uint, from, to time.T
 
 func (r Repository) GetUnhandled(ctx context.Context) ([]entities.Visit, error) {
 	visits := make([]entities.Visit, 0)
-	err := r.DB.WithContext(ctx).Model(&entities.Link{}).Where("handled_at is null").Limit(100).Find(&visits).Error
+	err := r.DB.WithContext(ctx).
+		Model(&entities.Visit{}).
+		Where("handled_at is null").
+		Where("created_at < ?", time.Now().Add(-1*time.Minute)).
+		Limit(100).Find(&visits).Error
 	if err != nil {
 		return nil, err
 	}
