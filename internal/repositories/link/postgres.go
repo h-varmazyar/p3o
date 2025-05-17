@@ -99,6 +99,16 @@ func (r Repository) Update(ctx context.Context, link entities.Link) error {
 	return nil
 }
 
+func (r Repository) UpdateFields(ctx context.Context, id uint, fields map[string]any) error {
+	err := r.DB.WithContext(ctx).Model(entities.Link{}).Where("id = ?", id).UpdateColumns(fields).Error
+
+	if err != nil {
+		return errors.ErrUnexpected.AddOriginalError(err)
+	}
+
+	return nil
+}
+
 func (r Repository) Delete(ctx context.Context, key string) error {
 	err := r.DB.WithContext(ctx).Delete(&entities.Link{Key: key}).Error
 	if err != nil {

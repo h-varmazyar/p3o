@@ -22,6 +22,7 @@ type linkRepository interface {
 	ReturnByKey(ctx context.Context, key string) (entities.Link, error)
 	List(ctx context.Context, userId uint, paginator pagination.Paginator) ([]entities.Link, pagination.Pagination, error)
 	Update(ctx context.Context, link entities.Link) error
+	UpdateFields(ctx context.Context, id uint, fields map[string]any) error
 	TotalLinkCount(ctx context.Context, userId uint) (int64, error)
 	TotalVisits(ctx context.Context, userId uint) (int64, error)
 	Delete(ctx context.Context, key string) error

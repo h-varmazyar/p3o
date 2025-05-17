@@ -21,45 +21,56 @@ func (s Service) Edit(ctx context.Context, req domain.EditLinkReq) error {
 		return errors.ErrLinkOwnerMismatch
 	}
 
+	fields := make(map[string]any)
+
 	if ok, expireAt := canChangeExpireAt(req.ExpireAt, link.ExpireAt); ok {
-		link.ExpireAt = expireAt
+		fields["expire_at"] = expireAt
 	}
 
 	if ok, status := canChangeStatus(req.Status, link.Status); ok {
-		link.Status = status
+		fields["status"] = status
 	}
 
 	if ok, password := canChangePassword(req.Password, link.Password); ok {
-		link.Password = password
+		s.log.Warnf("password: %v - %v", password, req.Password)
+		fields["password"] = password
 	}
 
 	if ok, maxVisit := canChangeMaxVisit(req.MaxVisit, link.MaxVisit); ok {
-		link.MaxVisit = maxVisit
+		s.log.Warnf("max visit: %v - %v", maxVisit, req.MaxVisit)
+		fields["max_visit"] = maxVisit
 	}
 
 	if ok, immediate := canChangeImmediate(req.Immediate, link.Immediate); ok {
-		link.Immediate = immediate
+		fields["immediate"] = immediate
 	}
 
-	if err = s.linkRepo.Update(ctx, link); err != nil {
-		return err
+	s.log.Infof("fields: %v", fields)
+
+	if len(fields) > 0 {
+		if err = s.linkRepo.UpdateFields(ctx, link.ID, fields); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func canChangeExpireAt(expireAt *time.Time, linkExpireAt sql.NullTime) (bool, sql.NullTime) {
-	if linkExpireAt.Valid && (expireAt == nil || *expireAt != linkExpireAt.Time) {
-		return true, sql.NullTime{
-			Valid: false,
+	if expireAt == nil {
+		if linkExpireAt.Valid {
+			return true, sql.NullTime{
+				Valid: false,
+			}
 		}
-	} else if !linkExpireAt.Valid && expireAt != nil {
-		return true, sql.NullTime{
-			Valid: true,
-			Time:  *expireAt,
+	} else {
+		if !linkExpireAt.Valid || *expireAt != linkExpireAt.Time {
+			return true, sql.NullTime{
+				Valid: true,
+				Time:  *expireAt,
+			}
 		}
 	}
-
 	return false, sql.NullTime{}
 }
 
@@ -100,6 +111,9 @@ func canChangePassword(password *string, linkHashedPassword string) (bool, strin
 
 func canChangeMaxVisit(maxVisit *uint, linkMaxVisit uint) (bool, uint) {
 	if maxVisit == nil {
+		if linkMaxVisit > 0 {
+			return true, 0
+		}
 		return false, 0
 	}
 	if *maxVisit != linkMaxVisit {
