@@ -34,7 +34,7 @@ func New(log *log.Logger, v1Router v1.Router, linkSrv linkService) Router {
 func (r Router) StartServing(ginEngine *gin.Engine, address string) error {
 	handleRedirects(ginEngine, r.linkSrv)
 
-	ginEngine.Use(middlewares.CORSMiddleware())
+	// ginEngine.Use(middlewares.CORSMiddleware())
 	r.RegisterRoutes(ginEngine)
 
 	srv := &http.Server{
