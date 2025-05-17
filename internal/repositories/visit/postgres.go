@@ -62,7 +62,8 @@ func (r Repository) Update(ctx context.Context, visit entities.Visit) error {
 func (r Repository) DailyVisitCount(ctx context.Context, userId, linkId uint, days uint) ([]DailyCount, error) {
 	var results []DailyCount
 
-	params := []interface{}{days - 1, userId}
+	days = days - 1
+	params := []interface{}{days, userId}
 	query := `
     WITH last_n_days AS (
         SELECT generate_series(
@@ -78,19 +79,19 @@ func (r Repository) DailyVisitCount(ctx context.Context, userId, linkId uint, da
     LEFT JOIN visits v 
         ON DATE(v.created_at) = l.visit_date
         AND v.user_id = ?
-`
+	`
 	if linkId > 0 {
+		params = append(params, linkId)
 		query += `
 		WHERE v.link_id = ?
-`
-		params = append(params, linkId)
+		`
 	}
 	query += `
     GROUP BY l.visit_date
     ORDER BY l.visit_date;
 	`
 
-	err := r.DB.WithContext(ctx).Raw(query, params).Scan(&results).Error
+	err := r.DB.WithContext(ctx).Raw(query, params...).Scan(&results).Error
 	return results, err
 }
 
