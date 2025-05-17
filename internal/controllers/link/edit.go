@@ -16,6 +16,7 @@ func (c Controller) Edit(ctx *gin.Context) {
 	}
 
 	editLinkReq.Key = ctx.Param("key")
+	editLinkReq.UserId = utils.FetchUserId(ctx)
 
 	if err := c.linkService.Edit(ctx, editLinkReq); err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
