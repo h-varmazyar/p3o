@@ -15,6 +15,8 @@ func (c Controller) Edit(ctx *gin.Context) {
 		return
 	}
 
+	editLinkReq.Key = ctx.Param("key")
+
 	if err := c.linkService.Edit(ctx, editLinkReq); err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
 	} else {
