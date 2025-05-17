@@ -1,4 +1,4 @@
-package dashboard
+package link
 
 import (
 	"github.com/gin-gonic/gin"
@@ -6,7 +6,8 @@ import (
 )
 
 func (c Controller) VisitChart(ctx *gin.Context) {
-	resp, err := c.linkSrv.VisitChart(ctx, utils.FetchUserId(ctx), "")
+	key := ctx.Param("key")
+	resp, err := c.linkService.VisitChart(ctx, utils.FetchUserId(ctx), key)
 	if err != nil {
 		utils.JsonHttpResponse(ctx, nil, err, false)
 		return

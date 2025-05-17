@@ -32,20 +32,16 @@ func (s Service) Edit(ctx context.Context, req domain.EditLinkReq) error {
 	}
 
 	if ok, password := canChangePassword(req.Password, link.Password); ok {
-		s.log.Warnf("password: %v - %v", password, req.Password)
 		fields["password"] = password
 	}
 
 	if ok, maxVisit := canChangeMaxVisit(req.MaxVisit, link.MaxVisit); ok {
-		s.log.Warnf("max visit: %v - %v", maxVisit, req.MaxVisit)
 		fields["max_visit"] = maxVisit
 	}
 
 	if ok, immediate := canChangeImmediate(req.Immediate, link.Immediate); ok {
 		fields["immediate"] = immediate
 	}
-
-	s.log.Infof("fields: %v", fields)
 
 	if len(fields) > 0 {
 		if err = s.linkRepo.UpdateFields(ctx, link.ID, fields); err != nil {

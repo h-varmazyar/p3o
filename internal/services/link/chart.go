@@ -15,8 +15,17 @@ var days = map[string]string{
 	"Saturday":  "شنبه",
 }
 
-func (s Service) VisitChart(ctx context.Context, userId uint) ([]domain.ChartItem, error) {
-	visits, err := s.visitRepo.DailyVisitCount(ctx, userId, 7)
+func (s Service) VisitChart(ctx context.Context, userId uint, key string) ([]domain.ChartItem, error) {
+	linkId := uint(0)
+	if key != "" {
+		link, err := s.linkRepo.ReturnByKey(ctx, key)
+		if err != nil {
+			return nil, err
+		}
+
+		linkId = link.ID
+	}
+	visits, err := s.visitRepo.DailyVisitCount(ctx, userId, linkId, 7)
 	if err != nil {
 		return nil, err
 	}

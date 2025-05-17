@@ -17,6 +17,7 @@ type linkService interface {
 	Fetch(ctx context.Context, userId uint, key string) (domain.LinkDetails, error)
 	Delete(ctx context.Context, userId uint, key string) error
 	IndirectVisit(ctx context.Context, key string, id string) (domain.Link, error)
+	VisitChart(ctx context.Context, userId uint, key string) ([]domain.ChartItem, error)
 }
 
 type Controller struct {

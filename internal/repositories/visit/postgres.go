@@ -15,6 +15,7 @@ const tableName = "visits"
 const (
 	columnId        = "id"
 	columnUserId    = "user_id"
+	columnLinkId    = "link_id"
 	columnCreatedAt = "created_at"
 )
 
@@ -58,9 +59,10 @@ func (r Repository) Update(ctx context.Context, visit entities.Visit) error {
 	return nil
 }
 
-func (r Repository) DailyVisitCount(ctx context.Context, userId uint, days uint) ([]DailyCount, error) {
+func (r Repository) DailyVisitCount(ctx context.Context, userId, linkId uint, days uint) ([]DailyCount, error) {
 	var results []DailyCount
 
+	tx := r.DB.WithContext(ctx)
 	query := `
     WITH last_n_days AS (
         SELECT generate_series(
@@ -76,24 +78,26 @@ func (r Repository) DailyVisitCount(ctx context.Context, userId uint, days uint)
     LEFT JOIN visits v 
         ON DATE(v.created_at) = l.visit_date
         AND v.user_id = ?
+`
+	if linkId > 0 {
+		query += `
+		WHERE v.link_id = ?
+`
+		tx.Raw(query, days-1, userId, linkId)
+	} else {
+		tx.Raw(query, days-1, userId)
+	}
+	query += `
     GROUP BY l.visit_date
     ORDER BY l.visit_date;
 	`
 
-	err := r.DB.WithContext(ctx).Raw(query, days-1, userId).Scan(&results).Error
+	err := tx.Scan(&results).Error
 	return results, err
 }
 
 func (r Repository) VisitCount(ctx context.Context, userId uint, from, to time.Time) (int64, error) {
 	count := int64(0)
-	//if err := r.DB.WithContext(ctx).Table(tableName).
-	//	Select(repositories.Count(columnId)).
-	//	Where(repositories.Where(columnUserId), userId).
-	//	Where(repositories.Between(columnCreatedAt), from, to).
-	//	Row().
-	//	Scan(&sum); err != nil {
-	//	return 0, errors.ErrVisitCountFetchFailed.AddOriginalError(err)
-	//}
 	if err := r.DB.WithContext(ctx).Model(&entities.Visit{}).
 		Where(repositories.Where(columnUserId), userId).
 		Where(repositories.Between(columnCreatedAt), from, to).

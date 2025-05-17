@@ -45,6 +45,7 @@ func (r *Router) RegisterRoutes(ginRouter *gin.RouterGroup) {
 		linkRouter.GET("/:key", r.linksController.Fetch)
 		linkRouter.PATCH("/:key", r.linksController.Edit)
 		linkRouter.DELETE("/:key", r.linksController.Delete)
+		linkRouter.GET("/:key/visit-chart", r.linksController.VisitChart)
 
 		//todo: check usage
 		linkRouter.GET("/:key/status", r.linksController.Status)

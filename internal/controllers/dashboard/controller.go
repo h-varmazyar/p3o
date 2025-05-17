@@ -11,7 +11,7 @@ type linkService interface {
 	TotalLinkCount(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)
 	TodayInfo(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)
 	TotalVisit(ctx context.Context, userId uint) (domain.DashboardInfoItem, error)
-	VisitChart(ctx context.Context, userId uint) ([]domain.ChartItem, error)
+	VisitChart(ctx context.Context, userId uint, key string) ([]domain.ChartItem, error)
 }
 
 type Controller struct {

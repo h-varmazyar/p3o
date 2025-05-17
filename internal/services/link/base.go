@@ -30,7 +30,7 @@ type linkRepository interface {
 
 type visitRepository interface {
 	VisitCount(ctx context.Context, userId uint, from, to time.Time) (int64, error)
-	DailyVisitCount(ctx context.Context, userId uint, count uint) ([]visitRepo.DailyCount, error)
+	DailyVisitCount(ctx context.Context, userId, linkId uint, count uint) ([]visitRepo.DailyCount, error)
 	ReturnByID(ctx context.Context, id string) (entities.Visit, error)
 	Update(ctx context.Context, visit entities.Visit) error
 	Create(ctx context.Context, visit entities.Visit) (entities.Visit, error)
