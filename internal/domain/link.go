@@ -52,10 +52,10 @@ type ChartItem struct {
 
 type EditLinkReq struct {
 	UserId    uint       `json:"user_id"`
-	MaxVisit  uint       `json:"max_visit"`
+	Key       string     `json:"key"`
+	MaxVisit  *uint      `json:"max_visit"`
 	ExpireAt  *time.Time `json:"expire_at"`
 	Password  *string    `json:"password"`
-	Key       string     `json:"key"`
-	Status    string     `json:"status"`
-	Immediate bool       `json:"immediate"`
+	Status    *string    `json:"status"`
+	Immediate *bool      `json:"immediate"`
 }

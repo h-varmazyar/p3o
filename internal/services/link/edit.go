@@ -33,12 +33,12 @@ func (s Service) Edit(ctx context.Context, req domain.EditLinkReq) error {
 		link.Password = password
 	}
 
-	if req.MaxVisit != link.MaxVisit {
-		link.MaxVisit = req.MaxVisit
+	if ok, maxVisit := canChangeMaxVisit(req.MaxVisit, link.MaxVisit); ok {
+		link.MaxVisit = maxVisit
 	}
 
-	if req.Immediate != link.Immediate {
-		link.Immediate = req.Immediate
+	if ok, immediate := canChangeImmediate(req.Immediate, link.Immediate); ok {
+		link.Immediate = immediate
 	}
 
 	if err = s.linkRepo.Update(ctx, link); err != nil {
@@ -63,8 +63,11 @@ func canChangeExpireAt(expireAt *time.Time, linkExpireAt sql.NullTime) (bool, sq
 	return false, sql.NullTime{}
 }
 
-func canChangeStatus(status string, linkStatus entities.LinkStatus) (bool, entities.LinkStatus) {
-	switch strings.ToLower(status) {
+func canChangeStatus(status *string, linkStatus entities.LinkStatus) (bool, entities.LinkStatus) {
+	if status == nil {
+		return false, linkStatus
+	}
+	switch strings.ToLower(*status) {
 	case "active":
 		if linkStatus == entities.LinkStatusDeactivatedByUser {
 			return true, entities.LinkStatusActive
@@ -93,4 +96,25 @@ func canChangePassword(password *string, linkHashedPassword string) (bool, strin
 		}
 		return false, ""
 	}
+}
+
+func canChangeMaxVisit(maxVisit *uint, linkMaxVisit uint) (bool, uint) {
+	if maxVisit == nil {
+		return false, 0
+	}
+	if *maxVisit != linkMaxVisit {
+		return true, *maxVisit
+	}
+	return false, 0
+}
+
+func canChangeImmediate(immediate *bool, linkImmediate bool) (bool, bool) {
+	if immediate == nil {
+		return false, linkImmediate
+	}
+	if *immediate != linkImmediate {
+		return true, *immediate
+	}
+	return false, false
+
 }
