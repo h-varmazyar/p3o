@@ -52,7 +52,13 @@ func (r Repository) TotalLinkCount(ctx context.Context, userId uint) (int64, err
 
 func (r Repository) TotalVisits(ctx context.Context, userId uint) (int64, error) {
 	sum := int64(0)
-	if err := r.DB.WithContext(ctx).Table(tableName).Select(repositories.Sum(ColumnTotalVisit)).Where(repositories.Where(ColumnOwnerId), userId).Row().Scan(&sum); err != nil {
+	if err := r.DB.
+	WithContext(ctx).
+	Table(tableName).
+	Select(repositories.Sum(ColumnTotalVisit)).
+	Where(repositories.Where(ColumnOwnerId), userId).
+	Row().
+	Scan(&sum); err != nil {
 		return 0, errors.ErrVisitCountFetchFailed.AddOriginalError(err)
 	}
 	return sum, nil
@@ -81,8 +87,18 @@ func (r Repository) List(ctx context.Context, userId uint, paginator pagination.
 
 	count := int64(0)
 
-	tx := r.DB.WithContext(ctx).Table(tableName).Where(repositories.Where(ColumnOwnerId), userId).Count(&count)
-	if err := tx.Limit(paginator.Limit()).Offset(paginator.Offset()).Find(&links).Error; err != nil {
+	tx := r.DB.
+		WithContext(ctx).
+		Table(tableName).
+		Where(repositories.
+		Where(ColumnOwnerId), userId).
+		Count(&count)
+	if err := tx.
+		Limit(paginator.Limit()).
+		Offset(paginator.Offset()).
+		Order("created_at DESC").
+		Find(&links).
+		Error; err != nil {
 		return nil, pagination.Pagination{}, errors.ErrUserHasNoLinks.AddOriginalError(err)
 	}
 
@@ -122,7 +138,8 @@ func (r Repository) Visit(_ context.Context, id uint) error {
 	err := r.DB.
 		Model(new(entities.Link)).
 		Where(repositories.Where(ColumnId), id).
-		Update("total_visit", gorm.Expr("total_visit + 1")).Error
+		Update("total_visit", gorm.Expr("total_visit + 1")).
+		Error
 
 	if err != nil {
 		return errors.ErrIncreaseVisitFailed.AddOriginalError(err)

@@ -8,13 +8,16 @@ import (
 
 // Link service errors :300ab
 var (
-	ErrLinkOwnerMismatch     = errors.NewWithHttp("services.link.owner_mismatch", 30000, http.StatusForbidden)
-	ErrLinkActivatedBefore   = errors.NewWithHttp("services.link.activated_before", 30001, http.StatusBadRequest)
-	ErrLinkDeactivatedBefore = errors.NewWithHttp("services.link.deactivated_before", 30002, http.StatusBadRequest)
-	ErrLinkActivationBanned  = errors.NewWithHttp("services.link.activation_banned", 30003, http.StatusForbidden)
-	ErrInvalidLink           = errors.NewWithHttp("services.link.invalid_link", 30004, http.StatusBadRequest)
-	ErrKeyGenerationFailed   = errors.NewWithHttp("services.link.key_generation_failed", 30005, http.StatusInternalServerError)
-	ErrLinkVisitMismatch     = errors.NewWithHttp("services.link.link_visit_mismatch", 30006, http.StatusBadRequest)
+	ErrLinkOwnerMismatch       = errors.NewWithHttp("services.link.owner_mismatch", 30000, http.StatusForbidden)
+	ErrLinkActivatedBefore     = errors.NewWithHttp("services.link.activated_before", 30001, http.StatusBadRequest)
+	ErrLinkDeactivatedBefore   = errors.NewWithHttp("services.link.deactivated_before", 30002, http.StatusBadRequest)
+	ErrLinkActivationBanned    = errors.NewWithHttp("services.link.activation_banned", 30003, http.StatusForbidden)
+	ErrInvalidLink             = errors.NewWithHttp("services.link.invalid_link", 30004, http.StatusBadRequest)
+	ErrKeyGenerationFailed     = errors.NewWithHttp("services.link.key_generation_failed", 30005, http.StatusInternalServerError)
+	ErrLinkVisitMismatch       = errors.NewWithHttp("services.link.link_visit_mismatch", 30006, http.StatusBadRequest)
+	ErrLinkExpired             = errors.NewWithHttp("services.link.link_expired", 30007, http.StatusPreconditionFailed)
+	ErrLinkProtectedByPassword = errors.NewWithHttp("services.link.link_protected_by_password", 30008, http.StatusForbidden)
+	ErrInvalidLinkPassword     = errors.NewWithHttp("services.link.invalid_password", 30009, http.StatusForbidden)
 )
 
 // user service errors :301ab

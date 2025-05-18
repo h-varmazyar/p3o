@@ -4,18 +4,33 @@ import (
 	"context"
 	sysErrors "errors"
 	"fmt"
-	"github.com/h-varmazyar/p3o/internal/errors"
 	"time"
+
+	"github.com/h-varmazyar/p3o/internal/errors"
+	"github.com/h-varmazyar/p3o/pkg/utils"
 
 	"github.com/h-varmazyar/p3o/internal/domain"
 	"github.com/h-varmazyar/p3o/internal/entities"
 	"github.com/oklog/ulid/v2"
 )
 
-func (s Service) ReturnByKey(ctx context.Context, key string) (domain.Link, error) {
+func (s Service) ReturnByKey(ctx context.Context, key, password string) (domain.Link, error) {
 	link, err := s.loadLink(ctx, key)
 	if err != nil {
 		return domain.Link{}, err
+	}
+
+	if link.ExpireAt.Time.Before(time.Now()) {
+		return domain.Link{}, errors.ErrLinkExpired
+	}
+
+	if link.Password != "" {
+		if password == "" {
+			return domain.Link{}, errors.ErrLinkProtectedByPassword
+		}
+		if err:= utils.CompareHashPassword(password, link.Password); err!= nil {
+			return domain.Link{}, errors.ErrInvalidLinkPassword
+		}
 	}
 
 	visit := entities.Visit{

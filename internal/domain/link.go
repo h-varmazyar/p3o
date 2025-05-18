@@ -20,12 +20,13 @@ type LinkCreateResp struct {
 }
 
 type Link struct {
-	ShortLink   string    `json:"short_link"`
-	Url         string    `json:"url"`
-	Status      string    `json:"status"`
-	IsImmediate bool      `json:"is_immediate"`
-	Visits      uint      `json:"visits"`
-	CreatedAt   time.Time `json:"created_at"`
+	ShortLink      string    `json:"short_link"`
+	Url            string    `json:"url"`
+	Status         string    `json:"status"`
+	IsImmediate    bool      `json:"is_immediate"`
+	Visits         uint      `json:"visits"`
+	CreatedAt      time.Time `json:"created_at"`
+	PasswordNeeded bool      `json:"password_needed"`
 }
 
 type LinkDetails struct {
