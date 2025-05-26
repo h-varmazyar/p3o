@@ -20,7 +20,7 @@ func (s Service) ReturnByKey(ctx context.Context, key, password string) (domain.
 		return domain.Link{}, err
 	}
 
-	if link.ExpireAt.Time.Before(time.Now()) {
+	if link.ExpireAt.Valid && link.ExpireAt.Time.Before(time.Now()) {
 		return domain.Link{}, errors.ErrLinkExpired
 	}
 
